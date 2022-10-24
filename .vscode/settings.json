@@ -1,0 +1,17 @@
+{
+    "editor.formatOnSave": true,
+    "editor.fontSize": 16,
+    "editor.mouseWheelZoom": true,
+    "explorer.confirmDragAndDrop": false,
+    "javascript.suggest.autoImports": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+        "source.sortImports": true
+    },
+    "[css]": {
+        "editor.suggest.insertMode": "replace"
+    },
+    "window.zoomLevel": 1,
+    "editor.tabSize": 3,
+    "liveServer.settings.AdvanceCustomBrowserCmdLine": ""
+}
