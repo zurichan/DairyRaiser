@@ -10,6 +10,17 @@ require_once '../includes/classes.php';
 
 $api = new MyAPI($main_conn);
 
+if (isset($_GET['google_signup_cancel'])) {
+
+    unset($_SESSION['google_signup']);
+    unset($_SESSION['givenname']);
+    unset($_SESSION['familyname']);
+    unset($_SESSION['email']);
+    unset($_SESSION['picture']);
+
+    header('Location: ../entry/signup.php');
+    exit();
+}
 if (isset($_GET['google_signup'])) {
 
     $givenname = filter_input(INPUT_GET, 'givenname', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -17,20 +28,270 @@ if (isset($_GET['google_signup'])) {
     $email = filter_input(INPUT_GET, 'email', FILTER_VALIDATE_EMAIL);
     $picture = filter_input(INPUT_GET, 'image', FILTER_VALIDATE_URL);
     $err = 0;
+    $all_email = $api->Read('user', 'all');
 
     (empty($givenname)) ? $err++ : NULL;
     (empty($familyname)) ? $err++ : NULL;
     (empty($email)) ? $err++ : NULL;
 
     if ($err == 0) {
-        echo $givenname . '<br>' . $familyname . '<br>' . $email . '<br>';
-        $_SESSION['google_signup'] = true;
-        $_SESSION['givenname'] = $givenname;
-        $_SESSION['familyname'] = $familyname;
-        $_SESSION['email'] = $email;
-        $_SESSION['picture'] = $picture;
+        $duplicate = 0;
+        foreach ($all_email as $user_email) {
+            if ($user_email->email == $email) {
+                $duplicate++;
+                break;
+            }
+        }
+
+        if ($duplicate == 0) {
+            $_SESSION['google_signup'] = true;
+            $_SESSION['givenname'] = $givenname;
+            $_SESSION['familyname'] = $familyname;
+            $_SESSION['email'] = $email;
+            $_SESSION['picture'] = $picture;
+        } else {
+            $_SESSION['signup-message'] = array(
+                "title" => 'Gmail is already in used',
+                "body" =>  '',
+                "type" => 'error'
+            );
+        }
 
         header('Location: ../entry/signup.php');
+        exit();
+    }
+}
+
+if (isset($_POST['signup'])) {
+    $err = 0;
+    $message = '';
+    $result = [];
+
+    if (isset($_POST['name'])) {
+        $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_SPECIAL_CHARS);
+        if (!empty($name)) {
+            if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
+                $err++;
+                $message = 'Only white space and letters are allowed.';
+            }
+        } else {
+            $err++;
+            $message = 'Name should not be empty.';
+        }
+    }
+
+    if (isset($_POST['email'])) {
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        if (!empty($email)) {
+            $all_email = $api->Read('user', 'all');
+            foreach ($all_email as $user_email) {
+                if ($user_email->email == $email) {
+                    $err++;
+                    $message = 'Email Address is already exist.';
+                    break;
+                }
+            }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $err++;
+                $message = 'Invalid Email format.';
+            }
+        } else {
+            $err++;
+            $message = 'Email Address is empty.';
+        }
+    }
+    if (isset($_POST['phone_number'])) {
+        $phone_number = filter_input(INPUT_POST, 'phone_number', FILTER_SANITIZE_NUMBER_INT);
+        if (!empty($phone_number) || $phone_number != '') {
+            $phoneNumberConvertString = strval($phone_number);
+            $phoneNumberLength = strlen($phoneNumberConvertString);
+            if ($phoneNumberLength != 10 || $phoneNumberLength < 0 || $phone_number = 0 || $phoneNumberConvertString[0] != '9') {
+                $err++;
+                $message = 'Invalid Phone Number Format.';
+            }
+        } else {
+            $err++;
+            $message = 'Phone Number is empty or is not a number.';
+        }
+    }
+
+    if (isset($_POST['password'])) {
+        $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
+        if (!empty($password)) {
+            if (isset($_POST['rpassword'])) {
+                $rpassword = filter_input(INPUT_POST, 'rpassword', FILTER_SANITIZE_SPECIAL_CHARS);
+                if ($rpassword != $password) {
+                    $err++;
+                    $message = "Those passwords did not match.";
+                }
+            } else {
+                $len = strval($password);
+                $pass_len = strlen($len);
+
+                if ($pass_len < 5 || !preg_match("/^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/", $password)) {
+                    $err++;
+                    $message = 'Password must contain (5+) length, and atleast (1) uppercase and digit.';
+                }
+            }
+        } else {
+            $err++;
+            $message = 'Password should not be empty.';
+        }
+    }
+
+    ($err == 0) ? $message = 'nothing' : NULL;
+    $result = [
+        'error' => $err,
+        'message' => $message,
+    ];
+
+    echo json_encode($result);
+}
+
+if (isset($_POST['signup-submit'])) {
+    $err = 0;
+
+    if (isset($_SESSION['google_signup'])) {
+        $givenname = $_SESSION['givenname'];
+        $familyname = $_SESSION['familyname'];
+        $email = $_SESSION['email'];
+        $picture = $_SESSION['picture'];
+
+        (!isset($_SESSION['givenname'])) ? $err++ : NULL;
+        (!isset($_SESSION['familyname'])) ? $err++ : NULL;
+        (!isset($_SESSION['email'])) ? $err++ : NULL;
+        (!isset($_SESSION['picture'])) ? $err++ : NULL;
+    } else {
+        $givenname = filter_input(INPUT_POST, 'fname', FILTER_SANITIZE_SPECIAL_CHARS);
+        $familyname = filter_input(INPUT_POST, 'lname', FILTER_SANITIZE_SPECIAL_CHARS);
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        $picture = '';
+
+        (empty($givenname)) ? $err++ : NULL;
+        (empty($familyname)) ? $err++ : NULL;
+        (empty($email)) ? $err++ : NULL;
+        (!preg_match("/^[a-zA-Z-' ]*$/", $givenname)) ? $err++ : NULL;
+        (!preg_match("/^[a-zA-Z-' ]*$/", $familyname)) ? $err++ : NULL;
+        (!filter_var($email, FILTER_VALIDATE_EMAIL)) ? $err++ : NULL;
+
+        $all_email = $api->Read('user', 'all');
+        foreach ($all_email as $user_email) {
+            if ($user_email->email == $email) {
+                $err++;
+                break;
+            }
+        }
+    }
+
+    $phone_number = filter_input(INPUT_POST, 'phoneNumber', FILTER_SANITIZE_NUMBER_INT);
+    $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
+    $rpassword = filter_input(INPUT_POST, 'rpassword', FILTER_SANITIZE_SPECIAL_CHARS);
+
+    (empty($phone_number)) ? $err++ : NULL;
+    (empty($password)) ? $err++ : NULL;
+    (empty($rpassword)) ? $err++ : NULL;
+
+    $phoneNumberConvertString = strval($phone_number);
+    $phoneNumberLength = strlen($phoneNumberConvertString);
+    ($phoneNumberLength != 10 || $phoneNumberLength < 0 || $phone_number = 0 || $phoneNumberConvertString[0] != '9') ? $err++ : NULL;
+
+    $password_str = strval($password);
+    $password_len = strlen($password_str);
+    ($password_len < 5 || !preg_match("/^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/", $password)) ? $err++ : NULL;
+    ($rpassword != $password) ? $err++ : NULL;
+
+    if ($err == 0) {
+        $_SESSION['success'] = 'user ' . $familyname . ', ' . $givenname;
+        $ipaddress = $api->IP_address();
+        $verification_code = md5(time() . $givenname);
+        // $verification_code = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
+        // OTP TIME
+        $date = date('Y-m-d h:i:s');
+        $OTPDate = date('Y-m-d h:i:s', strtotime(date('Y-m-d h:i:s')) + (60 * 10));
+
+        $mail = new PHPMailer\PHPMailer\PHPMailer();
+
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 587;
+        $mail->SMTPAuth = true;
+        $mail->Username = 'dairyraisers@gmail.com';
+        $mail->Password = 'qloiqlteoajeunsu';
+        $mail->SMTPSecure = 'tls';
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+
+        $mail->setFrom('dairyraisers@gmail.com', 'Dairy Raisers');
+        $mail->addAddress($email, $givenname);
+        $mail->addReplyTo('dairyraisers@gmail.com', 'Information');
+
+        $mail->isHTML(true);
+        $mail->Subject = '[Dairy Raisers] Email Verification.';
+
+        // https://www.dairyraisers.com/
+
+        $mail->Body = "
+                <div>
+        <h5 style='font-size: 25px;'>Greetings <span style='font-weight: bolder;'>$givenname !</span> You Have Registered at Dairy Raisers</h5>
+            <p style='font-size: 17px;'>Verify your Email Address to Login with the given Token below:</p>
+            <a style='text-decoration: none; color: blue; font-weight: bolder; border: 2px solid navy; padding: 10px;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
+            <p>Your Verification Token will expire within 10 minutes.</p>        
+            ";
+        $phone_number = (int) $phone_number;
+        if ($mail->send()) {
+            echo $email;
+            // INPUT USER, USER ADDRESS, AND ADD A SHOPPING SESSION DATA IN DATABASE
+            $api->Create('user', [
+                'key1' => ['firstname', "'$givenname'"],
+                'key2' => ['lastname', "'$familyname'"],
+                'key3' => ['email', "'$email'"],
+                'key4' => ['password', "'$password'"],
+                'key5' => ['mobile_no', $phone_number],
+                'key6' => ['user_ip', "'$ipaddress'"],
+                'key7' => ['verificationStatus', 0],
+                'key8' => ['ActivationCode', "'$verification_code'"],
+                'key10' => ['RegistrationDate', "'$date'"],
+                'key11' => ['Modified_at', "'$date'"],
+                'key9' => ['date_stamp', "'$OTPDate'"]
+            ]);
+            $get_user_info = $api->Read('user', 'set', 'email', "$email");
+            $api->Create('shopping_session', [
+                'key1' => ['user_id', $get_user_info[0]->user_id]
+            ]);
+
+            $_SESSION['login-message'] = array(
+                "title" => 'Verify Your Email',
+                "body" =>  'We have sent an email verification to your email address.',
+                "type" => 'success'
+            );
+
+            if (isset($_SESSION['google_signup'])) {
+                unset($_SESSION['google_signup']);
+                unset($_SESSION['givenname']);
+                unset($_SESSION['familyname']);
+                unset($_SESSION['email']);
+                unset($_SESSION['picture']);
+            }
+
+            header('Location: ../entry/login.php');
+            exit();
+        } else {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            $_SESSION['signup-message'] = array(
+                "title" => 'Something Went Wrong',
+                "body" =>  $mail->ErrorInfo,
+                "type" => 'error'
+            );
+        }
+        header('Location: ../entry/signup.php');
+        exit();
+    } else {
+        $_SESSION['signup-message'] = array(
+            "title" => 'Something Went Wrong',
+            "body" =>  '',
+            "type" => 'error'
+        );
+        header('Location: ../entry/signup.php');
+        exit();
     }
 }
 

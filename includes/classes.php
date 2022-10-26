@@ -222,18 +222,6 @@ class MyAPI
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 // function checkKeys($main_conn, $keys)
 // {
 //     $new_user = new User();
