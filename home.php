@@ -11,7 +11,6 @@ $api = new MyAPI($main_conn);
 $all_products = $api->Read('products', 'all');
 $user_name;
 $item_rows;
-
 $ip_address = $api->IP_address();
 $remember_me = $api->Read('remember_me', 'set', 'ip_address', "$ip_address");
 if (!empty($remember_me)) {

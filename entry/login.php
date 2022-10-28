@@ -112,7 +112,6 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
             <div class="mb-3 d-flex justify-content-center align-items-center">
                <p>Not yet register? <a href="../entry/signup.php">Sign up Here.</a></p>
             </div>
-
             <!-- submit -->
             <button class="btn btn-primary mb-3" type="submit" name="login"><i class="bi bi-door-open-fill"></i>
                Login</button>

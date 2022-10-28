@@ -219,11 +219,9 @@ if (isset($_POST['signup-submit'])) {
                 'key4' => ['password', "'$password'"],
                 'key5' => ['mobile_no', $phone_number],
                 'key6' => ['user_ip', "'$ipaddress'"],
-                'key7' => ['verificationStatus', 0],
-                'key8' => ['ActivationCode', "'$verification_code'"],
+                'key7' => ['verificationStatus', 1],
                 'key10' => ['RegistrationDate', "'$date'"],
                 'key11' => ['Modified_at', "'$date'"],
-                'key9' => ['date_stamp', "'$OTPDate'"]
             ]);
             $get_user_info = $api->Read('user', 'set', 'email', "$email");
             $api->Create('shopping_session', [
@@ -231,7 +229,7 @@ if (isset($_POST['signup-submit'])) {
             ]);
 
 
-            $_SESSION['users'] = array($get_user_info);
+            $_SESSION['users'] = array($get_user_info[0]);
             $_SESSION['TIME'] = time();
             $api->Delete('login_attempts', 'login_id', $login_attempts[0]->login_id);
 

@@ -19,7 +19,6 @@ if (isset($_SESSION['users'])) {
 $title = 'Signup | Dairy Raisers';
 require_once '../includes/header.php';
 require_once '../includes/navbar.php';
-
 ?>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
