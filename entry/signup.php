@@ -10,10 +10,8 @@ $user_name;
 $item_rows;
 
 if (isset($_SESSION['users'])) {
-
    header('Location: ../home.php');
 } else {
-
    $user_name = '';
    $item_rows = '';
 }

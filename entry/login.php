@@ -11,12 +11,12 @@ $item_rows;
 
 if (isset($_SESSION['users'])) {
 
-    header('Location: ../home.php');
+   header('Location: ../home.php');
 } else {
 
-    $user_name = '';
+   $user_name = '';
 
-    $item_rows = '';
+   $item_rows = '';
 }
 
 $title = 'Login | Dairy Raisers';
@@ -100,7 +100,7 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
                   placeholder="enter password" required>
                <label for="password">Enter Password</label>
             </div>
-            <div class="mb-3 d-flex justify-content-between align-items-center user-select-none">
+            <div class="mb-4 d-flex justify-content-between align-items-center user-select-none">
                <a href="./forgot_password.php" class="lead btn btn-sm btn-outline-primary">Forgot Password ?</a>
                <div class="form-check text-primary">
                   <input class="form-check-input" type="checkbox" id="remember_me">
@@ -109,29 +109,8 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
                   </label>
                </div>
             </div>
-            <!-- FACEBOOK AND GOOGLE SIGN IN  -->
-            <div class="user-select-none mb-2">
-               <div class="w-100 px-3 d-flex text-center justify-content-center align-items-center">
-                  <div class="border-top w-100" style="height: 2px;"></div>
-                  <p class=" lead text-center mx-4"
-                     style="font-size: 14px; white-space: nowrap; text-overflow: ellipsis;">LOGIN AS:</p>
-                  <div class="border-top w-100" style="height: 2px;"></div>
-               </div>
-               <div class="d-flex flex-column justify-content-center align-items-center w-100 mb-3 border-bottom py-1">
-                  <!-- FACEBOOK SIGN IN -->
-                  <div class="fb-login-button" data-width="" data-size="medium" data-button-type="continue_with"
-                     data-layout="default" data-auto-logout-link="false" data-use-continue-as="false"></div>
-                  <!-- GOOGLE SIGN IN  -->
-                  <div class=" my-3">
-                     <div id="g_id_onload"
-                        data-client_id="368500009640-jfm2bavhodidfrk6p9g26cq4kk6qk8lq.apps.googleusercontent.com"
-                        data-callback="handleCredentialResponse" data-context="signin" data_ux-mode="popup">
-                     </div>
-                     <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="inline"
-                        data-text="signin_with" data-size="medium" data-auto_prompt="false" data-logo_alignment="left">
-                     </div>
-                  </div>
-               </div>
+            <div class="mb-3 d-flex justify-content-center align-items-center">
+               <p>Not yet register? <a href="../entry/signup.php">Sign up Here.</a></p>
             </div>
 
             <!-- submit -->
@@ -212,10 +191,10 @@ swal({
       console.log('failed');
    }
    <?php
-            unset($_SESSION['google_not_bind']);
-            unset($_SESSION['google_given_name']);
-            unset($_SESSION['google_family_name']);
-            ?>
+         unset($_SESSION['google_not_bind']);
+         unset($_SESSION['google_given_name']);
+         unset($_SESSION['google_family_name']);
+         ?>
 })
 </script>
 

@@ -201,6 +201,7 @@ if (isset($_POST['signup-submit'])) {
     ($rpassword != $password) ? $err++ : NULL;
 
     if ($err == 0) {
+        $phone_number = (int) $phone_number;
         $_SESSION['success'] = 'user ' . $familyname . ', ' . $givenname;
         $ipaddress = $api->IP_address();
         $verification_code = md5(time() . $givenname);
@@ -209,37 +210,8 @@ if (isset($_POST['signup-submit'])) {
         $date = date('Y-m-d h:i:s');
         $OTPDate = date('Y-m-d h:i:s', strtotime(date('Y-m-d h:i:s')) + (60 * 10));
 
-        $mail = new PHPMailer\PHPMailer\PHPMailer();
+        if (isset($_SESSION['google_signup'])) {
 
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->Port = 587;
-        $mail->SMTPAuth = true;
-        $mail->Username = 'dairyraisers@gmail.com';
-        $mail->Password = 'qloiqlteoajeunsu';
-        $mail->SMTPSecure = 'tls';
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-
-        $mail->setFrom('dairyraisers@gmail.com', 'Dairy Raisers');
-        $mail->addAddress($email, $givenname);
-        $mail->addReplyTo('dairyraisers@gmail.com', 'Information');
-
-        $mail->isHTML(true);
-        $mail->Subject = '[Dairy Raisers] Email Verification.';
-
-        // https://www.dairyraisers.com/
-
-        $mail->Body = "
-                <div>
-        <h5 style='font-size: 25px;'>Greetings <span style='font-weight: bolder;'>$givenname !</span> You Have Registered at Dairy Raisers</h5>
-            <p style='font-size: 17px;'>Verify your Email Address to Login with the given Token below:</p>
-            <a style='text-decoration: none; color: blue; font-weight: bolder; border: 2px solid navy; padding: 10px;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
-            <p>Your Verification Token will expire within 10 minutes.</p>        
-            ";
-        $phone_number = (int) $phone_number;
-        if ($mail->send()) {
-            echo $email;
-            // INPUT USER, USER ADDRESS, AND ADD A SHOPPING SESSION DATA IN DATABASE
             $api->Create('user', [
                 'key1' => ['firstname', "'$givenname'"],
                 'key2' => ['lastname', "'$familyname'"],
@@ -258,32 +230,95 @@ if (isset($_POST['signup-submit'])) {
                 'key1' => ['user_id', $get_user_info[0]->user_id]
             ]);
 
-            $_SESSION['login-message'] = array(
-                "title" => 'Verify Your Email',
-                "body" =>  'We have sent an email verification to your email address.',
+
+            $_SESSION['users'] = array($get_user_info);
+            $_SESSION['TIME'] = time();
+            $api->Delete('login_attempts', 'login_id', $login_attempts[0]->login_id);
+
+            $_SESSION['index-message'] = array(
+                "title" => 'Welcome, ' . $givenname,
+                "body" =>  '',
                 "type" => 'success'
             );
-
-            if (isset($_SESSION['google_signup'])) {
-                unset($_SESSION['google_signup']);
-                unset($_SESSION['givenname']);
-                unset($_SESSION['familyname']);
-                unset($_SESSION['email']);
-                unset($_SESSION['picture']);
-            }
-
-            header('Location: ../entry/login.php');
+            header('Location: ../home.php');
             exit();
         } else {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-            $_SESSION['signup-message'] = array(
-                "title" => 'Something Went Wrong',
-                "body" =>  $mail->ErrorInfo,
-                "type" => 'error'
-            );
+
+            $mail = new PHPMailer\PHPMailer\PHPMailer();
+
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->Port = 587;
+            $mail->SMTPAuth = true;
+            $mail->Username = 'dairyraisers@gmail.com';
+            $mail->Password = 'qloiqlteoajeunsu';
+            $mail->SMTPSecure = 'tls';
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+
+            $mail->setFrom('dairyraisers@gmail.com', 'Dairy Raisers');
+            $mail->addAddress($email, $givenname);
+            $mail->addReplyTo('dairyraisers@gmail.com', 'Information');
+
+            $mail->isHTML(true);
+            $mail->Subject = '[Dairy Raisers] Email Verification.';
+
+            // https://www.dairyraisers.com/
+
+            $mail->Body = "
+                    <div>
+            <h5 style='font-size: 25px;'>Greetings <span style='font-weight: bolder;'>$givenname !</span> You Have Registered at Dairy Raisers</h5>
+                <p style='font-size: 17px;'>Verify your Email Address to Login with the given Token below:</p>
+                <a style='text-decoration: none; color: blue; font-weight: bolder; border: 2px solid navy; padding: 10px;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
+                <p>Your Verification Token will expire within 10 minutes.</p>        
+                ";
+            if ($mail->send()) {
+                echo $email;
+                // INPUT USER, USER ADDRESS, AND ADD A SHOPPING SESSION DATA IN DATABASE
+                $api->Create('user', [
+                    'key1' => ['firstname', "'$givenname'"],
+                    'key2' => ['lastname', "'$familyname'"],
+                    'key3' => ['email', "'$email'"],
+                    'key4' => ['password', "'$password'"],
+                    'key5' => ['mobile_no', $phone_number],
+                    'key6' => ['user_ip', "'$ipaddress'"],
+                    'key7' => ['verificationStatus', 0],
+                    'key8' => ['ActivationCode', "'$verification_code'"],
+                    'key10' => ['RegistrationDate', "'$date'"],
+                    'key11' => ['Modified_at', "'$date'"],
+                    'key9' => ['date_stamp', "'$OTPDate'"]
+                ]);
+                $get_user_info = $api->Read('user', 'set', 'email', "$email");
+                $api->Create('shopping_session', [
+                    'key1' => ['user_id', $get_user_info[0]->user_id]
+                ]);
+
+                $_SESSION['login-message'] = array(
+                    "title" => 'Verify Your Email',
+                    "body" =>  'We have sent an email verification to your email address.',
+                    "type" => 'success'
+                );
+
+                if (isset($_SESSION['google_signup'])) {
+                    unset($_SESSION['google_signup']);
+                    unset($_SESSION['givenname']);
+                    unset($_SESSION['familyname']);
+                    unset($_SESSION['email']);
+                    unset($_SESSION['picture']);
+                }
+
+                header('Location: ../entry/login.php');
+                exit();
+            } else {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                $_SESSION['signup-message'] = array(
+                    "title" => 'Something Went Wrong',
+                    "body" =>  $mail->ErrorInfo,
+                    "type" => 'error'
+                );
+            }
+            header('Location: ../entry/signup.php');
+            exit();
         }
-        header('Location: ../entry/signup.php');
-        exit();
     } else {
         $_SESSION['signup-message'] = array(
             "title" => 'Something Went Wrong',
