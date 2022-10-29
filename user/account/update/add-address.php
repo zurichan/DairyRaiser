@@ -6,7 +6,7 @@ require_once '../../../configs/database.php';
 require_once '../../../includes/classes.php';
 $api = new MyAPI($main_conn);
 
-require_once '../../includes/remember_me.php';
+require_once '../../../includes/remember_me.php';
 
 if (isset($_SESSION['users'])) {
 
@@ -94,7 +94,11 @@ if (isset($_SESSION['users'])) {
                   <label class="form-label" for="near_landmark">Nearest Landmark (Optional)</label>
                </div>
             </div>
-            <button type="submit" name="add-address-process" class="btn btn-outline-primary">Add Address</button>
+            <div class="d-flex justify-content-between align-items-center">
+               <button type="submit" name="add-address-process" class="btn btn-outline-primary">Add Address</button>
+               <a href="../../../user/account/addresses.php" class="btn btn-danger"><i
+                     class="fa-solid fa-rotate-left"></i> back</a>
+            </div>
          </form>
       </div>
 

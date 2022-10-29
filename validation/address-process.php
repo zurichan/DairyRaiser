@@ -20,46 +20,76 @@ if (isset($_POST['add-address-process'])) {
     $house_number = filter_input(INPUT_POST, 'house_number', FILTER_SANITIZE_SPECIAL_CHARS);
     $landmark = filter_input(INPUT_POST, 'near_landmark', FILTER_SANITIZE_SPECIAL_CHARS);
 
+    $err = 0;
+    // $pass = 0;
+    // $all_province = $api->Read('province', 'all');
 
-    $add_address_error = 0;
-    $location_succes = 0;
+    // foreach($all_province as $province) {
+    //     if($province->province_id == $province_id) {
+    //         $pass++;
+    //         break;
+    //     }
+    // }
+    // $all_municipality = $api->Read('municipality', 'all');
+    // foreach($all_municipality as $municipality) {
+    //     if($municipality->province_id == $province_id) {
+    //         if($municipality->municipality == $municipality_id) {
 
-    (empty($barangay_id)) ? $add_address_error++ : NULL;
-    (empty($province_id)) ? $add_address_error++ : NULL;
-    (empty($municipality_id)) ? $add_address_error++ : NULL;
+    //         }
+    //         $pass++;
+    //         break;
+    //     }
+    // }
+    echo $province_id . '<br>' . $municipality_id . '<br>' . $barangay_id . '<br>';
+    (empty($barangay_id)) ? $err++ : NULL;
+    (empty($province_id)) ? $err++ : NULL;
+    (empty($municipality_id)) ? $err++ : NULL;
 
-    $get_province = $api->Read('province', 'set', 'province_id', $province_id);
-    $get_municipality = $api->Read('municipality', 'set', 'municiaplity_id', $municipality_id);
-    $get_barangay = $api->Read('barangay', 'set', 'barangay_id', $barangay_id);
+    $get_province = $api->Read('province', 'set', "province_id", $province_id);
+    $get_municipality = $api->Read('municipality', 'set', "municipality_id", $municipality_id);
+    $get_barangay = $api->Read('barangay', 'set', "barangay_id", $barangay_id);
     (empty($get_province)) ? $err++ : NULL;
     (empty($get_municipality)) ? $err++ : NULL;
     (empty($get_barangay)) ? $err++ : NULL;
 
-    $validate_province = $api->Read('province', 'set', 'province_id', $province_id);
-    $validate_municipality = $api->Read('municipality', 'set', 'province_id', $province_id);
-    $validate_barangay = $api->Read('barangay', 'set', 'municiaplity_id', $municipality_id);
+    $validate_province = $api->Read('province', 'set', "province_id", $province_id);
+    $validate_municipality = $api->Read('municipality', 'set', "province_id", $province_id);
+    $validate_barangay = $api->Read('barangay', 'set', "municipality_id", $municipality_id);
     (empty($validate_province)) ? $err++ : NULL;
     (empty($validate_municipality)) ? $err++ : NULL;
     (empty($validate_barangay)) ? $err++ : NULL;
 
     $postal_codeLength = strlen((string)$postal_code);
-    ($postal_code < 0) ? $add_address_error++ : NULL;
-    ($postal_codeLength > 4) ? $add_address_error++ : NULL;
-    (strlen($house_number) >= 100) ? $add_address_error++ : NULL;
-    (strlen($landmark) >= 40) ? $add_address_error++ : NULL;
-    (empty($postal_code)) ? $add_address_error++ : NULL;
-    (empty($house_number)) ? $add_address_error++ : NULL;
-
+    ($postal_code < 0) ? $err++ : NULL;
+    ($postal_codeLength > 4) ? $err++ : NULL;
+    (strlen($house_number) >= 100) ? $err++ : NULL;
+    (strlen($landmark) >= 40) ? $err++ : NULL;
+    (empty($postal_code)) ? $err++ : NULL;
+    (empty($house_number)) ? $err++ : NULL;
+    echo $err;
     if ($err == 0) {
-        $province = $validate_province[0]->province_name;
-        $municipality = $validate_municipality[0]->municipality_name;
-        $barangay = $validate_barangay[0]->barangay_name;
+        $fetch_province = $api->Read('province', 'set', 'province_id', $province_id);
+        $fetch_municipality = $api->Read('municipality', 'set', 'municipality_id', $municipality_id);
+        $fetch_barangay = $api->Read('barangay', 'set', 'barangay_id', $barangay_id);
+
+        $province = $fetch_province[0]->province_name;
+        $municipality = $fetch_municipality[0]->municipality_name;
+        $barangay = $fetch_barangay[0]->barangay_name;
 
         $complete_address = $house_number . ', ' . $barangay . ', ' . $municipality . ', ' . $province . ', ' . $postal_code;
         $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
         $user_address_rows = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id, true);
 
         if ($user_address_rows != 0 && $user_address_rows <= 4) {
+
+            $user_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+            $isDefault = 'yes';
+            foreach ($user_address as $address) {
+                if ($address->isDefault == 'yes') {
+                    $isDefault = 'no';
+                    break;
+                }
+            }
 
             $api->Create('user_address', [
                 'key1' => ['user_id', $_SESSION['users'][0]->user_id],
@@ -70,7 +100,7 @@ if (isset($_POST['add-address-process'])) {
                 'key6' => ['barangay', "'$barangay'"],
                 'key7' => ['postalCode', "'$postal_code'"],
                 'key8' => ['complete_address', "'$complete_address'"],
-                'key9' => ['isDefault', "'no'"]
+                'key9' => ['isDefault', "'$isDefault'"]
             ]);
 
             $_SESSION['address-message'] = array(
@@ -124,95 +154,55 @@ if (isset($_POST['add-address-process'])) {
 /** MAKE AN ADDRESS DEFAULT */
 if (isset($_POST['make_default_address'])) {
 
-    $making_default_error = [];
+    $err_message = '';
 
-    $make_default_address = $_POST['make_default_address'];
+    $address = filter_input(INPUT_POST, 'make_default_address', FILTER_SANITIZE_NUMBER_INT);
     $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $complete_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $make_default_address_success = 0;
+    $fetch_address = $api->Read('user_address', 'set', 'address_id', $address);
 
-    foreach ($complete_address as $addresses) {
-
-        if ($addresses->complete_address == $make_default_address) {
-            $make_default_address_success++;
-        }
-    }
-
-    if ($make_default_address_success == 1) {
-
+    $err = 0;
+    (empty($address)) ? $err++ : NULL;
+    (empty($fetch_address)) ? $err++ : NULL;
+    ($fetch_address[0]->isDefault == 'yes') ? $err++ : NULL;
+    if ($err == 0) {
+        $complete_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
         foreach ($complete_address as $addresses) {
-
-            if ($addresses->complete_address == $make_default_address) {
-
+            if ($addresses->address_id == $address) {
                 $api->Update('user_address', 'address_id', [
                     'key1' => ['isDefault', "'yes'"]
                 ], $addresses->address_id);
             } else {
-
                 $api->Update('user_address', 'address_id', [
                     'key1' => ['isDefault', "'no'"]
                 ], $addresses->address_id);
             }
         }
     } else {
-
-        $making_default_error['default_error'] = 'Something went wrong. Please try again.';
+        $err_message = 'Something went wrong or the address is in Default.';
     }
 
-    echo json_encode($making_default_error);
-    //header('Location: ../user/account/addresses.php');
+    echo json_encode($err_message);
 }
 
 /** REMOVE AN ADDRESS */
-
 if (isset($_POST['remove_address'])) {
 
-    $making_default_error = [];
-    $remove_address = $_POST['remove_address'];
+    $err_message = '';
+    $address = filter_input(INPUT_POST, 'remove_address', FILTER_SANITIZE_NUMBER_INT);
     $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $complete_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+    $fetch_address = $api->Read('user_address', 'set', 'address_id', $address);
 
-    $remove_address_success = 0;
-    $remove_address_error = 0;
-    $removing_address;
-
-    foreach ($complete_address as $addresses) {
-
-        if ($addresses->complete_address == $remove_address) {
-
-            $removing_address = $api->Read('user_address', 'set', 'address_id', $addresses->address_id);
-            $remove_address_success++;
-            break;
-        }
-    }
-
-    if ($removing_address) {
-
-        if ($removing_address[0]->isDefault == 'yes') {
-
-            $remove_address_error++;
-        }
-    }
-
-    if ($remove_address_success = 1) {
-
-        if ($remove_address_error == 0) {
-
-            foreach ($complete_address as $addresses) {
-
-                if ($addresses->complete_address == $remove_address) {
-
-                    $api->Delete('user_address', 'address_id', $addresses->address_id);
-                }
-            }
-        } else {
-            $making_default_error['default_error'] = 'This is a Default Address.';
-        }
+    $err = 0;
+    (empty($address)) ? $err++ : NULL;
+    (empty($fetch_address)) ? $err++ : NULL;
+    ($fetch_address[0]->isDefault == 'yes') ? $err++ : NULL;
+    if ($err == 0) {
+        $api->Delete('user_address', 'address_id', $address);
     } else {
-        $making_default_error['default_error'] = 'Something went wrong. Please try again.';
+        $err_message = 'Something went wrong or the address is in Default.';
     }
 
-    echo json_encode($making_default_error);
+    echo json_encode($err_message);
 }
 
 /** EDIT ADDRESS */

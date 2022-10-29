@@ -2,9 +2,8 @@ $(document).ready(() => {
 
     var make_default_btn = Array.from(document.querySelectorAll('.make-default-btn'));
     var remove_address_btn = Array.from(document.querySelectorAll('.remove-address-btn'));
-
     var complete_address = Array.from(document.querySelectorAll('.complete-address'));
-
+    var address_id = Array.from(document.querySelectorAll("[data-target='address_id']"));
     /** MAKE DEFAULT ADDRESS */
     make_default_btn.forEach((default_btn, i) => {
         $(default_btn).click(() => {
@@ -22,7 +21,7 @@ $(document).ready(() => {
                         dataType: 'json',
                         encode: true,
                         data: {
-                            make_default_address: complete_address[i].innerHTML
+                            make_default_address: address_id[i].value
                         },
                         error: function (request, error) {
                             console.log(arguments);
@@ -31,11 +30,10 @@ $(document).ready(() => {
                         console.log('asd');
                         
                        }
-                    }).done((data) => {
-                        console.log('asd');
-                        if (data.default_error) {
+                    }).done((response) => {
+                        if (response) {
                             swal({
-                                title: data.default_error,
+                                title: response,
                                 icon: "error",
                                 closeOnClickOutside: false
                             });
@@ -78,11 +76,11 @@ $(document).ready(() => {
     // })
 
     /** REMOVE ADDRESS BUTTON */
-    remove_address_btn.forEach((remove_btn, index) => {
+    remove_address_btn.forEach((remove_btn, i) => {
         $(remove_btn).click(() => {
             swal({
                 title: "Remove this Address",
-                text: complete_address[index].innerHTML,
+                text: complete_address[i].innerHTML,
                 closeOnClickOutside: false,
                 buttons: true,
                 dangerMode: true,
@@ -94,12 +92,13 @@ $(document).ready(() => {
                         dataType: 'json',
                         encode: true,
                         data: {
-                            remove_address: complete_address[index].innerHTML
+                            remove_address: address_id[i].value
                         }
-                    }).done((data) => {
-                        if (data.default_error) {
+                    }).done((response) => {
+                        console.log(response)
+                        if (response) {
                             swal({
-                                title: data.default_error,
+                                title: response,
                                 icon: "error",
                                 closeOnClickOutside: false
                             });

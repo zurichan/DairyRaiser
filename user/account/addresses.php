@@ -34,7 +34,8 @@ if (isset($_SESSION['users'])) {
       <?php require_once '../../includes/sidebar_settings.php'; ?>
 
       <!-- MAIN CONTENT -->
-      <div style="width: 100%;" class="h-100 p-3" style="font-family: Public Sans Light;">
+      <div style="width: 100%; font-family: Public Sans Light;" class="h-100 p-3"
+         style="font-family: Public Sans Light;">
          <h4 class="m-auto" style="font-family: Public Sans ExBold;">YOUR ADDRESSES</h4>
          <p class="fs-5">Edit your address</p>
          <hr class="opacity-25 text-secondary">
@@ -42,7 +43,7 @@ if (isset($_SESSION['users'])) {
          <a style="vertical-align: middle;" href="./update/add-address.php"
             class="btn btn-outline-secondary  px-3 container-fluid d-flex flex-row justify-content-around align-items-center mb-2">
             <h4>Add New Address <i class="fa-solid fa-house-chimney-user"></i></h4>
-            <i style="font-size: 110px;" class=" opacity-25 bi bi-plus-circle-dotted"></i>
+            <i style="font-size: 90px;" class=" opacity-25 bi bi-plus-circle-dotted"></i>
          </a>
 
          <?php
@@ -60,41 +61,48 @@ if (isset($_SESSION['users'])) {
                      $indexes = 1;
                      foreach ($user_address as $address) {
                      ?>
-               <form method="POST" action="./update/edit-address.php" class="p-4 mb-4 border">
-                  <div class="mb-3 d-flex justify-content-between align-items-center">
-                     <h3 class="lead"> Address <?= $indexes; ?>: </h3>
-                     <?php
-                              if ($address->isDefault == 'yes') {
-                              ?>
-
-                     <p class="lead text-center fw-bolder text-light p-3 bg-primary">DEFAULT</p>
-                     <?php
-                              }
-                              ?>
+               <form method="POST" action="./update/edit-address.php" class="p-3 mb-4 border">
+                  <?php
+                           if ($address->isDefault == 'yes') {
+                           ?>
+                  <div class="">
+                     <p class="text-uppercase text-center text-light py-2 bg-primary"
+                        style="font-family: Public Sans ExBold;">DEFAULT</p>
+                  </div>
+                  <?php
+                           }
+                           ?>
+                  <div class="mb-2 d-flex justify-content-between align-items-center text-center">
+                     <p> Address <?= $indexes; ?>: </p>
                      <div class="button-group">
-                        <button type="button" class="make-default-btn btn btn-outline-primary me-3">Make
+                        <button type="button" class="make-default-btn btn btn-sm btn-outline-primary">Make
                            Default</button>
                         <button type="submit" name="edit_address"
-                           class="edit-address-btn btn btn-outline-success me-3">Edit</button>
-                        <button type="button" class="remove-address-btn btn btn-outline-danger me-3">Remove</button>
+                           class="edit-address-btn btn btn-sm btn-outline-success">Edit</button>
+                        <button type="button" class="remove-address-btn btn btn-sm btn-outline-danger">Remove</button>
                      </div>
                   </div>
 
-                  <div class="border px-4 py-3 d-flex flex-row justify-content-between align-items-center">
+                  <div class="border px-3 py-2 d-flex flex-column justify-content-center align-items-start">
                      <div class="">
                         <input type="hidden" name="address_postal_code" value="<?= $address->postalCode; ?>">
                         <input type="hidden" name="address_houseNumber" value="<?= $address->house_number; ?>">
                         <input type="hidden" name="address_landmark" value="<?= $address->landmark; ?>">
                         <input type="hidden" name="complete_address" value="<?= $address->complete_address; ?>">
-                        <input type="hidden" name="address_id" value="<?= $address->address_id; ?>">
-                        <h3 class="lead">Complete Address: </h3>
-                        <span data-target="complete-address"
-                           class="fw-bold complete-address"><?= $address->complete_address; ?></span
-                           data-target="complete-address">
+                        <input type="hidden" name="address_id" data-target="address_id"
+                           value="<?= $address->address_id; ?>">
+                        <p class="text-muted">Complete Address: </p>
+                        <h6 style="font-family: Public Sans ExBold;" data-target="complete-address"
+                           class="complete-address text-uppercase">
+                           <?= $address->complete_address; ?></h6 data-target="complete-address">
                      </div>
                      <div class="">
-                        <h3 class="lead">Landmark: </h3>
-                        <h5 class="fw-bold"><?= $address->landmark; ?></h5>
+                        <p>
+                           <span>Landmark:</span>
+                           <span style="font-family: Public Sans ExBold;" class="">
+                              <?= $address->landmark; ?>
+                           </span>
+                        </p>
                      </div>
                   </div>
                </form>
@@ -176,9 +184,10 @@ if (isset($_SESSION['users'])) {
 
 <?php
 } else {
-   header('Location: ../../../index.php');
+   header('Location: ../../../home.php');
+   exit();
 }
-require_once('../../includes/footer.php');
+require_once '../../includes/footer.php';
 
 if (isset($_SESSION['address-message'])) : ?>
 <script>

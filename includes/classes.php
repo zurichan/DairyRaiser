@@ -70,24 +70,23 @@ class MyAPI
                 $query = "SELECT * FROM `$tableName`";
                 break;
             case 'set':
-                $query = "SELECT * FROM `$tableName` WHERE $target = :input_value";
+                $query = "SELECT * FROM `$tableName` WHERE $target = $values ";
                 break;
             default:
                 return 'Wrong Target';
                 break;
         }
         $statement = $this->db->prepare($query);
-
-        if ($values == 'false') {
-            $statement->execute();
-        } else {
-            $statement->execute(['input_value' => $values]);
-        }
+        // if ($values == 'false') {
+        // } else {
+        //     $statement->execute(['input_value' => $values]);
+        // }
+        $statement->execute();
 
         ($rows_only == false) ?
             $result = $statement->fetchAll() :
             $result = $statement->rowCount();
-
+        // print_r($result);
         return $result;
     }
 
