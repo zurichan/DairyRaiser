@@ -11,13 +11,8 @@ $api = new MyAPI($main_conn);
 $all_products = $api->Read('products', 'all');
 $user_name;
 $item_rows;
-$ip_address = $api->IP_address();
-$remember_me = $api->Read('remember_me', 'set', 'ip_address', "$ip_address");
-if (!empty($remember_me)) {
-   $email = $remember_me[0]->email;
-   $get_user = $api->Read('user', 'set', 'email', "$email");
-   $_SESSION['users'] = $get_user;
-}
+
+require_once './includes/remember_me.php';
 
 if (isset($_SESSION['users'])) {
    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);

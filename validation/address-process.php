@@ -20,6 +20,7 @@ if (isset($_POST['add-address-process'])) {
     $house_number = filter_input(INPUT_POST, 'house_number', FILTER_SANITIZE_SPECIAL_CHARS);
     $landmark = filter_input(INPUT_POST, 'near_landmark', FILTER_SANITIZE_SPECIAL_CHARS);
 
+
     $add_address_error = 0;
     $location_succes = 0;
 
@@ -27,45 +28,19 @@ if (isset($_POST['add-address-process'])) {
     (empty($province_id)) ? $add_address_error++ : NULL;
     (empty($municipality_id)) ? $add_address_error++ : NULL;
 
-    $all_province = $api->Read('province', 'all');
-    $province;
+    $get_province = $api->Read('province', 'set', 'province_id', $province_id);
+    $get_municipality = $api->Read('municipality', 'set', 'municiaplity_id', $municipality_id);
+    $get_barangay = $api->Read('barangay', 'set', 'barangay_id', $barangay_id);
+    (empty($get_province)) ? $err++ : NULL;
+    (empty($get_municipality)) ? $err++ : NULL;
+    (empty($get_barangay)) ? $err++ : NULL;
 
-    foreach ($all_province as $provinces) {
-
-        if ($provinces->province_id == $province_id) {
-            $province = $provinces->province_name;
-            $location_succes++;
-            break;
-        }
-    }
-
-    $all_municipality = $api->Read('municipality', 'set', 'province_id', $province_id);
-    $municipality;
-
-    (empty($all_municipality)) ? $add_address_error++ : NULL;
-
-    foreach ($all_municipality as $municipalities) {
-
-        if ($municipalities->municipality_id == $municipality_id) {
-            $municipality = $municipalities->municipality_name;
-            $location_succes++;
-            break;
-        }
-    }
-
-    $all_barangay = $api->Read('barangay', 'set', 'municipality_id', $municipality_id);
-    $barangay;
-
-    (empty($all_barangay)) ? $add_address_error++ : NULL;
-
-    foreach ($all_barangay as $barangays) {
-
-        if ($barangays->barangay_id == $barangay_id) {
-            $barangay = $barangays->barangay_name;
-            $location_succes++;
-            break;
-        }
-    }
+    $validate_province = $api->Read('province', 'set', 'province_id', $province_id);
+    $validate_municipality = $api->Read('municipality', 'set', 'province_id', $province_id);
+    $validate_barangay = $api->Read('barangay', 'set', 'municiaplity_id', $municipality_id);
+    (empty($validate_province)) ? $err++ : NULL;
+    (empty($validate_municipality)) ? $err++ : NULL;
+    (empty($validate_barangay)) ? $err++ : NULL;
 
     $postal_codeLength = strlen((string)$postal_code);
     ($postal_code < 0) ? $add_address_error++ : NULL;
@@ -75,13 +50,16 @@ if (isset($_POST['add-address-process'])) {
     (empty($postal_code)) ? $add_address_error++ : NULL;
     (empty($house_number)) ? $add_address_error++ : NULL;
 
-    $complete_address = $house_number . ', ' . $barangay . ', ' . $municipality . ', ' . $province . ', ' . $postal_code;
-    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $user_address_rows = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id, true);
+    if ($err == 0) {
+        $province = $validate_province[0]->province_name;
+        $municipality = $validate_municipality[0]->municipality_name;
+        $barangay = $validate_barangay[0]->barangay_name;
 
-    if ($user_address_rows != 0 && $user_address_rows <= 4) {
+        $complete_address = $house_number . ', ' . $barangay . ', ' . $municipality . ', ' . $province . ', ' . $postal_code;
+        $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+        $user_address_rows = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id, true);
 
-        if ($add_address_error == 0 && $location_succes == 3) {
+        if ($user_address_rows != 0 && $user_address_rows <= 4) {
 
             $api->Create('user_address', [
                 'key1' => ['user_id', $_SESSION['users'][0]->user_id],
@@ -102,47 +80,42 @@ if (isset($_POST['add-address-process'])) {
             );
         } else {
 
-            $_SESSION['add-address-message'] = array(
-                "title" => 'Invalid Address Input',
+            $_SESSION['address-message'] = array(
+                "title" => 'You have too many Address',
                 "body" => '',
                 "type" => 'error'
             );
+        }
 
-            header('Location: ../user/account/update/add-address.php');
-            exit();
+        $user_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+
+        if ($user_address_rows == 0) {
+
+            $api->Create('user_address', [
+                'key1' => ['user_id', $_SESSION['users'][0]->user_id],
+                'key2' => ['house_number', "'$house_number'"],
+                'key3' => ['landmark', "'$landmark'"],
+                'key4' => ['province', "'$province'"],
+                'key5' => ['municipality', "'$municipality'"],
+                'key6' => ['barangay', "'$barangay'"],
+                'key7' => ['postalCode', "'$postal_code'"],
+                'key8' => ['complete_address', "'$complete_address'"],
+                'key9' => ['isDefault', "'yes'"]
+            ]);
+
+            $_SESSION['address-message'] = array(
+                "title" => 'Successfully Added New Address',
+                "body" => '',
+                "type" => 'success'
+            );
         }
     } else {
-
         $_SESSION['address-message'] = array(
-            "title" => 'You have too many Address',
-            "body" => '',
+            "title" => 'Something Went Wrong',
+            "body" => 'Invalid Input',
             "type" => 'error'
         );
     }
-
-    $user_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-
-    if ($user_address_rows == 0) {
-
-        $api->Create('user_address', [
-            'key1' => ['user_id', $_SESSION['users'][0]->user_id],
-            'key2' => ['house_number', "'$house_number'"],
-            'key3' => ['landmark', "'$landmark'"],
-            'key4' => ['province', "'$province'"],
-            'key5' => ['municipality', "'$municipality'"],
-            'key6' => ['barangay', "'$barangay'"],
-            'key7' => ['postalCode', "'$postal_code'"],
-            'key8' => ['complete_address', "'$complete_address'"],
-            'key9' => ['isDefault', "'yes'"]
-        ]);
-
-        $_SESSION['address-message'] = array(
-            "title" => 'Successfully Added New Address',
-            "body" => '',
-            "type" => 'success'
-        );
-    }
-
     header('Location: ../user/account/addresses.php');
     exit();
 }
@@ -311,19 +284,19 @@ if (isset($_POST['update_address'])) {
 
     $complete_address = $edit_house_number . ', ' . $barangay . ', ' . $municipality . ', ' . $province . ', ' . $edit_postal_code;
 
-    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);    
+    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
     $user_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id, true);
 
     if ($update_address_error == 0 && $location_succes == 3) {
 
         $api->Update('user_address', 'address_id', [
-            'key1' => ['house_number', "'".$edit_house_number."'"],
-            'key2' => ['landmark', "'".$edit_landmark."'"],
-            'key3' => ['province', "'".$province."'"],
-            'key4' => ['municipality', "'".$municipality."'"],
-            'key5' => ['barangay', "'".$barangay."'"],
+            'key1' => ['house_number', "'" . $edit_house_number . "'"],
+            'key2' => ['landmark', "'" . $edit_landmark . "'"],
+            'key3' => ['province', "'" . $province . "'"],
+            'key4' => ['municipality', "'" . $municipality . "'"],
+            'key5' => ['barangay', "'" . $barangay . "'"],
             'key6' => ['postalCode', $edit_postal_code],
-            'key7' => ['complete_address', "'".$complete_address."'"]
+            'key7' => ['complete_address', "'" . $complete_address . "'"]
         ], $address_id);
 
         $_SESSION['address-message'] = array(

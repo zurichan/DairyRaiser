@@ -2,24 +2,24 @@
 
 session_start();
 date_default_timezone_set('Asia/Manila');
+require_once '../../configs/database.php';
+require_once '../../includes/classes.php';
+$api = new MyAPI($main_conn);
+
+require_once '../../includes/remember_me.php';
 
 if (isset($_SESSION['users'])) {
 
-    require_once '../../configs/database.php';
-    require_once '../../includes/classes.php';
+   $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+   $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+   $item_rows = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id, true);
+   $all_cart_items = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id);
+   $user_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
 
-    $api = new MyAPI($main_conn);
-
-    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $item_rows = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id, true);
-    $all_cart_items = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id);
-    $user_address = $api->Read('user_address', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-
-    $user_name = $user_info[0]->firstname;
-    $title = 'Your Profile | Dairy Raisers';
-    require_once '../../includes/header.php';
-    require_once '../../includes/navbar.php';
+   $user_name = $user_info[0]->firstname;
+   $title = 'Your Profile | Dairy Raisers';
+   require_once '../../includes/header.php';
+   require_once '../../includes/navbar.php';
 
 ?>
 

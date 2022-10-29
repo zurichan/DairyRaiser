@@ -2,30 +2,30 @@
 
 session_start();
 date_default_timezone_set('Asia/Manila');
+require_once '../configs/database.php';
+require_once '../includes/classes.php';
+$api = new MyAPI($main_conn);
+
+require_once '../includes/remember_me.php';
 
 if (isset($_SESSION['users'])) {
 
-    require_once '../configs/database.php';
-    require_once '../includes/classes.php';
+   $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+   $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+   $item_rows = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id, true);
+   $all_cart_items = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id);
 
-    $api = new MyAPI($main_conn);
+   $total_qty = 0;
+   foreach ($all_cart_items as $item) {
+      $total_qty += $item->quantity;
+   }
+   $portion = '';
+   ($total_qty > 1) ? $portion = 'pcs' : $portion = 'pc';
 
-    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $item_rows = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id, true);
-    $all_cart_items = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id);
-
-    $total_qty = 0;
-    foreach ($all_cart_items as $item) {
-        $total_qty += $item->quantity;
-    }
-    $portion = '';
-    ($total_qty > 1) ? $portion = 'pcs' : $portion = 'pc';
-
-    $user_name = $user_info[0]->firstname;
-    $title = 'Shopping Cart | Dairy Raisers';
-    require_once '../includes/header.php';
-    require_once '../includes/navbar.php';
+   $user_name = $user_info[0]->firstname;
+   $title = 'Shopping Cart | Dairy Raisers';
+   require_once '../includes/header.php';
+   require_once '../includes/navbar.php';
 ?>
 
 <!-- CART CONTENTS -->
@@ -33,8 +33,8 @@ if (isset($_SESSION['users'])) {
    <div class="p-3 bg-light">
       <div class="d-flex justify-content-evenly align-items-center gap-2">
          <?php
-                if ($item_rows !== 0) {
-                ?>
+            if ($item_rows !== 0) {
+            ?>
          <table class="table caption-top table-striped table-bordered text-center" id="cartTable" style="width: 100%;">
             <thead class="text-center">
                <tr>
@@ -48,10 +48,10 @@ if (isset($_SESSION['users'])) {
             </thead>
             <tbody class="text-center">
                <?php
-                            $index = 1;
-                            foreach ($all_cart_items as $item) {
-                                $products_byID = $api->Read('products', 'set', 'product_id', $item->product_id);
-                            ?>
+                     $index = 1;
+                     foreach ($all_cart_items as $item) {
+                        $products_byID = $api->Read('products', 'set', 'product_id', $item->product_id);
+                     ?>
                <tr class="cart_item fw-bold">
                   <td style="vertical-align: middle;">
                      <?= $index; ?>.
@@ -85,9 +85,9 @@ if (isset($_SESSION['users'])) {
                   </td>
                </tr>
                <?php
-                                $index++;
-                            }
-                            ?>
+                        $index++;
+                     }
+                     ?>
             </tbody>
          </table>
          <div class="align-self-start">
@@ -150,15 +150,15 @@ if (isset($_SESSION['users'])) {
             </form>
          </div>
          <?php
-                } else {
-                ?>
+            } else {
+            ?>
          <main class="container-fluid d-flex flex-column justify-content-center align-items-center">
             <span class="lead fs-2 mt-2">No Items on Cart.</span>
             <img src="./img/no-cart-item.png" class="img-fluid" alt="no cart item">
          </main>
          <?php
-                }
-                ?>
+            }
+            ?>
       </div>
    </div>
 </main>
@@ -166,14 +166,14 @@ if (isset($_SESSION['users'])) {
 <!-- FOOTER -->
 <?php
 
-    require_once '../includes/footer.php';
+   require_once '../includes/footer.php';
 } else {
-    $_SESSION['index-message'] = array(
-        "title" => 'Sign Up Now!',
-        "body" => 'Please Log In First',
-        "type" => 'error'
-    );
-    header('Location: ../home.php');
+   $_SESSION['index-message'] = array(
+      "title" => 'Sign Up Now!',
+      "body" => 'Please Log In First',
+      "type" => 'error'
+   );
+   header('Location: ../home.php');
 } ?>
 
 <script src="../scripts/cart.js"></script>

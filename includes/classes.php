@@ -59,7 +59,7 @@ class MyAPI
     }
 
     /** READ */
-    public function Read(string $tableName, string $method, $target = false, $values = false, bool $rows_only = false)
+    public function Read(string $tableName, string $method, $target = false, $values = 'false', bool $rows_only = false)
     {
         $query = '';
         $statement = '';
@@ -77,9 +77,12 @@ class MyAPI
                 break;
         }
         $statement = $this->db->prepare($query);
-        ($values == false) ?
-            $statement->execute() :
+
+        if ($values == 'false') {
+            $statement->execute();
+        } else {
             $statement->execute(['input_value' => $values]);
+        }
 
         ($rows_only == false) ?
             $result = $statement->fetchAll() :
