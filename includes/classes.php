@@ -82,7 +82,7 @@ class MyAPI
         //     $statement->execute(['input_value' => $values]);
         // }
         $statement->execute();
-
+        // echo $query;
         ($rows_only == false) ?
             $result = $statement->fetchAll() :
             $result = $statement->rowCount();

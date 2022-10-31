@@ -153,8 +153,8 @@ if (isset($_SESSION['users'])) {
             } else {
             ?>
          <main class="container-fluid d-flex flex-column justify-content-center align-items-center">
-            <span class="lead fs-2 mt-2">No Items on Cart.</span>
-            <img src="./img/no-cart-item.png" class="img-fluid" alt="no cart item">
+            <h3 style="font-family: Aquino;" class=" mt-2">No Items on Cart</h3>
+            <img src="../img/no-cart-item.png" class="img-fluid" alt="no cart item">
          </main>
          <?php
             }

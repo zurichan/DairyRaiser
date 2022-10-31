@@ -64,7 +64,7 @@ $(document).ready(() => {
 
             $.ajax({
                 type: 'POST',
-                url: './validation/cart-process.php',
+                url: '../validation/cart-process.php',
                 dataType: 'json',
                 encode: true,
                 data: {
@@ -82,7 +82,7 @@ $(document).ready(() => {
         $(item).change(() => {
             $.ajax({
                 type: 'POST',
-                url: './validation/cart-process.php',
+                url: '../validation/cart-process.php',
                 dataType: 'json',
                 encode: true,
                 data: {
@@ -110,7 +110,7 @@ $(document).ready(() => {
                 if (willDelete) {
                     $.ajax({
                         type: 'POST',
-                        url: './validation/cart-process.php',
+                        url: '../validation/cart-process.php',
                         data: {
                             remove_item: productname[i].innerHTML
                         }

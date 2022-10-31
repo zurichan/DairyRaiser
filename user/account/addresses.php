@@ -92,14 +92,13 @@ if (isset($_SESSION['users'])) {
                         <input type="hidden" name="address_id" data-target="address_id"
                            value="<?= $address->address_id; ?>">
                         <p class="text-muted">Complete Address: </p>
-                        <h6 style="font-family: Public Sans ExBold;" data-target="complete-address"
-                           class="complete-address text-uppercase">
+                        <h6 data-target="complete-address" class="text-uppercase">
                            <?= $address->complete_address; ?></h6 data-target="complete-address">
                      </div>
                      <div class="">
                         <p>
-                           <span>Landmark:</span>
-                           <span style="font-family: Public Sans ExBold;" class="">
+                           <span class="text-muted">Landmark:</span>
+                           <span class="">
                               <?= $address->landmark; ?>
                            </span>
                         </p>

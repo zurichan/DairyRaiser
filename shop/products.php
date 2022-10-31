@@ -17,42 +17,35 @@ $item_rows;
 $title = '';
 
 if (isset($_GET['page'])) {
-    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_SPECIAL_CHARS);
-    $pageArr = array('all', 'item');
-    $err = 0;
-    (!in_array($page, $pageArr)) ? $err++ : NULL;
+   $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_SPECIAL_CHARS);
+   $pageArr = array('all', 'item');
+   $err = 0;
+   (!in_array($page, $pageArr)) ? $err++ : NULL;
 
-    if ($err == 0) {
-        switch ($page) {
-            case 'all':
-                $title = 'Products | Dairy Raisers';
-                $ip_address = $api->IP_address();
-                $remember_me = $api->Read('remember_me', 'set', 'ip_address', "$ip_address");
-                if (!empty($remember_me)) {
-                    $email = $remember_me[0]->email;
-                    $get_user = $api->Read('user', 'set', 'email', "$email");
-                    $_SESSION['users'] = $get_user;
-                }
-                break;
-            case 'item':
-                $title = 'Item | Dairy Raisers';
-                break;
-        }
-    } else {
-        $title = '404 Page Not Found | Dairy Raisers';
-    }
+   if ($err == 0) {
+      switch ($page) {
+         case 'all':
+            $title = 'Products | Dairy Raisers';
+            break;
+         case 'item':
+            $title = 'Item | Dairy Raisers';
+            break;
+      }
+   } else {
+      $title = '404 Page Not Found | Dairy Raisers';
+   }
 }
 
 if (isset($_SESSION['users'])) {
-    $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-    $cart_items_row = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id, true);
-    $user_name = $user_info[0]->firstname;
+   $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+   $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
+   $cart_items_row = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id, true);
+   $user_name = $user_info[0]->firstname;
 
-    $item_rows = $cart_items_row;
+   $item_rows = $cart_items_row;
 } else {
-    $user_name = '';
-    $item_rows = '';
+   $user_name = '';
+   $item_rows = '';
 }
 
 require_once '../includes/header.php';
@@ -71,7 +64,8 @@ require_once '../includes/navbar.php';
    <div style="background-color: #fff;" class="border d-flex justify-content-between align-items-start p-3 gap-4">
       <div class="mx-0 border-top border-bottom py-3 h-100">
          <h5 style="white-space: nowrap;font-family: Public Sans Light;" class="text-center border-bottom pb-3">Category
-            <i class="bi bi-tags text-primary"></i> :</h5>
+            <i class="bi bi-tags text-primary"></i> :
+         </h5>
          <div class="d-flex flex-column my-4 gap-2">
             <div class="form-check user-select-none pe-auto">
                <input class="form-check-input" type="checkbox" value="" id="all-products-category" checked>
@@ -125,11 +119,11 @@ require_once '../includes/navbar.php';
                   class="bi bi-info-lg p-0"></i></button>
          </div>
          <?php
-                foreach ($all_products as $product) :
-                    $product_stock = $api->Read('product_stocks', 'set', 'product_id', $product->product_id);
+            foreach ($all_products as $product) :
+               $product_stock = $api->Read('product_stocks', 'set', 'product_id', $product->product_id);
 
-                    if ($product_stock[0]->finished_goods > 0) {
-                ?>
+               if ($product_stock[0]->finished_goods > 0) {
+            ?>
          <div class="col-6 col-md-4 col-lg-2 mb-3">
             <div class="card product-item">
                <a class="text-dark text-decoration-none px-0 py-0"
@@ -144,8 +138,8 @@ require_once '../includes/navbar.php';
             </div>
          </div>
          <?php
-                    } else {
-                    ?>
+               } else {
+               ?>
          <div class="col-6 col-md-4 col-lg-2 mb-3">
             <a class="card product-item btn btn-outline-secondary disabled text-decoration-none text-dark px-0 py-0"
                href="./products.php?page=item&item=<?= $product->productname; ?>" tabindex="-1" role="button"
@@ -164,30 +158,29 @@ require_once '../includes/navbar.php';
             </a>
          </div>
          <?php
-                    }
-                endforeach;
-                ?>
+               }
+            endforeach;
+            ?>
       </div>
    </div>
 </main>
 <?php } else if (isset($page) && $page == 'item') { ?>
 <?php if (isset($_GET['item'])) {
 
-        $item = filter_input(INPUT_GET, 'item', FILTER_SANITIZE_SPECIAL_CHARS);
-        $get_product = $api->Read('products', 'set', 'productname', "$item");
+      $item = filter_input(INPUT_GET, 'item', FILTER_SANITIZE_SPECIAL_CHARS);
+      $get_product = $api->Read('products', 'set', 'productname', "'$item'");
 
-        $_SESSION['productname'] = $item;
+      $_SESSION['productname'] = $item;
 
-        $err = 0;
+      $err = 0;
 
-        if (!empty($get_product)) {
-            $products_byName = $api->Read('products', 'set', 'productname', $item);
-            $product_stock = $api->Read('product_stocks', 'set', 'product_id', $products_byName[0]->product_id);
+      if (!empty($get_product)) {
+         $products_byName = $api->Read('products', 'set', 'productname', "'$item'");
+         $product_stock = $api->Read('product_stocks', 'set', 'product_id', $products_byName[0]->product_id);
+         ($product_stock[0]->finished_goods <= 0) ? $err++ : NULL;
 
-            ($product_stock[0]->finished_goods <= 0) ? $err++ : NULL;
-
-            if ($err == 0) {
-    ?>
+         if ($err == 0) {
+   ?>
 <main class="container border mb-4" style="margin-top: 70px;">
    <div class=" bg-light d-flex justify-content-evenly align-items-stretch px-2 py-3">
       <div class="col-5 col-md-6 col-lg-6">
@@ -198,8 +191,9 @@ require_once '../includes/navbar.php';
          <form class="h-100 text-wrap d-flex flex-column justify-content-between align-items-center"
             style="font-family: Public Sans Light;" method="POST" action="../validation/add-to-cart-process.php">
             <div class="border-bottom w-100 pb-4">
+               <input type="hidden" name="product_id" value="<?= $products_byName[0]->product_id; ?>">
                <span class="lead text-muted" style="font-size: 14.5px;">category > milk</span>
-               <h5 class="" style="font-family: Public Sans ExBold; font-size: 30px;">
+               <h5 style="font-family: Public Sans ExBold; font-size: 30px;">
                   <?= $products_byName[0]->productname; ?></h5>
             </div>
             <div class="w-100 d-flex justify-content-between align-items-start py-3">
@@ -256,31 +250,30 @@ require_once '../includes/navbar.php';
                   </div>
                </div>
             </div>
-
          </form>
       </div>
    </div>
 </main>
 <?php
-            } else {
-                $_SESSION['products-message'] = array(
-                    "title" => 'Out of Stock',
-                    "body" =>  $_SESSION['productname'],
-                    "type" => 'error'
-                );
-                header("Location: ./products.php?page=all");
-                ob_end_flush();
-                exit();
-            }
-        } else {
-            require_once '../includes/404_page.php';
-        }
-    } else {
-        require_once '../includes/404_page.php';
-    }
-    ?>
+         } else {
+            $_SESSION['products-message'] = array(
+               "title" => 'Out of Stock',
+               "body" =>  $_SESSION['productname'],
+               "type" => 'error'
+            );
+            header("Location: ./products.php?page=all");
+            ob_end_flush();
+            exit();
+         }
+      } else {
+         require_once '../includes/404_page.php';
+      }
+   } else {
+      require_once '../includes/404_page.php';
+   }
+   ?>
 <?php } else {
-    require_once '../includes/404_page.php';
+   require_once '../includes/404_page.php';
 } ?>
 
 <!-- FOOTER -->

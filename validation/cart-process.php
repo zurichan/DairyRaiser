@@ -13,10 +13,10 @@ $api = new MyAPI($main_conn);
 
 if (isset($_SESSION['users']) && isset($_POST['quantities']) && isset($_POST['product_name'])) {
     if ($_POST['quantities'] != 0) {
-
+        $product_name = filter_input(INPUT_POST, 'product_name', FILTER_SANITIZE_SPECIAL_CHARS);
         $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
         $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
-        $products = $api->Read('products', 'set', 'productname', $_POST['product_name']);
+        $products = $api->Read('products', 'set', 'productname', "'$product_name'");
 
         $selected_item_session = $api->Read('cart_item', 'set', 'session_id', $user_shopping_session[0]->session_id);
         foreach ($selected_item_session as $item) {

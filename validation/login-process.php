@@ -127,7 +127,7 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
         }
         if ($error_count > 0) {
 
-            $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', $ipaddress);
+            $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', "'$ipaddress'");
 
             if ($login_attempts[0]->login_attempt_tracker != 5) {
 

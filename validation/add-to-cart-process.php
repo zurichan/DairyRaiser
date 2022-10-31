@@ -8,16 +8,13 @@ require_once '../includes/classes.php';
 
 $api = new MyAPI($main_conn);
 
-
 if (isset($_SESSION['users'])) {
-
-    if (isset($_SESSION['productname']) && isset($_POST['quantity']) && isset($_SESSION['users'])) {
+    if (isset($_POST['addtocart']) && isset($_POST['quantity']) && isset($_SESSION['users'])) {
         $quantity = filter_input(INPUT_POST, 'quantity', FILTER_SANITIZE_NUMBER_INT);
         str_replace('+', '', $quantity);
-        $product_name = filter_input(INPUT_POST, 'productname', FILTER_SANITIZE_SPECIAL_CHARS);
-        if (($quantity > 0)) {  
-
-            $products = $api->Read('products', 'set', 'productname',  $_SESSION['productname']);
+        $product_id = filter_input(INPUT_POST, 'product_id', FILTER_SANITIZE_SPECIAL_CHARS);
+        if (($quantity > 0)) {
+            $products = $api->Read('products', 'set', 'product_id',  $product_id);
             $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
             $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
 
@@ -55,11 +52,12 @@ if (isset($_SESSION['users'])) {
 
             $_SESSION['products-message'] = array(
                 "title" => 'Added to Cart Successfully !',
-                "body" => 'Item: ' . $_SESSION['productname'] . ' has been added to your cart',
+                "body" => 'Item: ' . $product_name . ' has been added to your cart',
                 "type" => 'success'
             );
 
             header('Location: ../shop/products.php?page=all');
+            exit();
         } else {
             $_SESSION['products-message'] = array(
                 "title" => 'Invalid Quantity!',
@@ -67,10 +65,11 @@ if (isset($_SESSION['users'])) {
                 "type" => 'error'
             );
 
-            header('Location: '.$_SERVER['HTTP_REFERER']);
+            header('Location: ' . $_SERVER['HTTP_REFERER']);
         }
     } else {
-        header('Location: ../shop/products.php?page=all');
+        // header('Location: ../shop/products.php?page=all');
+        // exit();
     }
 } else {
     $_SESSION['products-message'] = array(
@@ -79,5 +78,5 @@ if (isset($_SESSION['users'])) {
         "type" => 'error'
     );
 
-    header('Location: '.$_SERVER['HTTP_REFERER']);
+    header('Location: ' . $_SERVER['HTTP_REFERER']);
 }

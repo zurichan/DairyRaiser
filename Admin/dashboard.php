@@ -41,6 +41,9 @@ if (isset($_SESSION['admins'])) {
 ?>
 
 <div class="container-fluid border p-3">
+   <div style="font-family: Aquino;" class="row">
+      <h3>Dairy Raisers Dashboard</h3>
+   </div>
    <div class="row gap-3 px-2">
       <div class="col border">
          <div class="d-flex justify-content-between align-items-center p-1 pt-3">
