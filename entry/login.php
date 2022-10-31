@@ -75,11 +75,11 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
    nonce="ZBGCll43"></script>
 
 <!-- login content -->
-<main style="width: 700px;margin-top: 15px;margin-bottom: 0;" class="h-100 container-fluid">
+<main style="width: 500px;margin-top: 80px;margin-bottom: 20px;" class="container-fluid">
    <!-- main row -->
    <div class="row d-flex justify-content-center align-items-center">
       <!-- column 2 -->
-      <div class="border col-md-7 m-5 px-3 py-4 bg-light">
+      <div class="border px-3 py-4 bg-light">
          <form action="../validation/login-process.php" method="POST" class="d-flex flex-column px-2">
             <div class="d-flex flex-column justify-content-center align-items-center">
                <img src="../img/company-logo.png" class="img-fluid logo" alt="company logo">
@@ -110,7 +110,7 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
                </div>
             </div>
             <div class="mb-3 d-flex justify-content-center align-items-center">
-               <p>Not yet register? <a href="../entry/signup.php">Sign up Here.</a></p>
+               <p>Not yet register? <a href="../entry/signup.php">Sign up Here</a></p>
             </div>
             <!-- submit -->
             <button class="btn btn-primary mb-3" type="submit" name="login"><i class="bi bi-door-open-fill"></i>

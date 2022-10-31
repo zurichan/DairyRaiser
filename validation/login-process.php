@@ -30,8 +30,7 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
         ]);
     }
 
-    $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', $ipaddress);
-
+    $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', "'$ipaddress'");
     if ($login_attempts[0]->login_attempt_tracker == 5) {
 
         if ($login_attempts[0]->date_attempt == NULL) {
@@ -42,7 +41,7 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
             ], $login_attempts[0]->login_id);
         }
 
-        $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', $ipaddress);
+        $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', "'$ipaddress'");
         $current_date = date('Y-m-d h:i:s');
 
         if ($current_date >= $login_attempts[0]->date_attempt) {
@@ -54,7 +53,7 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
         }
     }
 
-    $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', $ipaddress);
+    $login_attempts = $api->Read('login_attempts', 'set', 'ip_addr', "'$ipaddress'");
 
     if ($login_attempts[0]->login_attempt_tracker < 5) {
 
@@ -91,12 +90,12 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
                     ], $login_attempts[0]->login_id);
 
                     $api->Update('user', 'email', [
-                        '1' => ['ActivationCode' , 'NULL'],
+                        '1' => ['ActivationCode', 'NULL'],
                         '2' => ['date_stamp', 'NULL']
                     ], "$email");
 
                     if ($remember_me = true) {
-                        
+
                         $api->Create('remember_me', [
                             '1' => ['ip_address', "'$ipaddress'"],
                             '3' => ['email', "'$email'"]
@@ -112,7 +111,7 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
                         "type" => 'success'
                     );
 
-                    header('Location: '.$_SERVER['HTTP_REFERER']);
+                    header('Location: ' . $_SERVER['HTTP_REFERER']);
                     break;
                 } else if ($user->verificationStatus == 0) {
 
@@ -143,7 +142,6 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
                 "type" => 'error'
             );
             header('Location: ../entry/login.php');
-
         }
     } else {
 
@@ -154,7 +152,6 @@ if (isset($_POST['login']) && !isset($_SESSION['users'])) {
         );
 
         header('Location: ../entry/login.php');
-
     }
 }
 
@@ -176,7 +173,7 @@ if (isset($_GET['google_signin']) && isset($_GET['givenname']) && isset($_GET['f
                 "type" => 'success'
             );
 
-            header("Location: ".$_SERVER['HTTP_REFERER']);
+            header("Location: " . $_SERVER['HTTP_REFERER']);
         } else {
             $_SESSION['unverified_email'] = $email;
             header("Location: ../entry/verifying_email.php");

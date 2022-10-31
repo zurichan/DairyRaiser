@@ -72,7 +72,7 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
 <!-- signup content -->
 <main style="width: 700px;margin-top: 70px;margin-bottom: 0;" class=' container-fluid'>
    <!-- main row -->
-   <div class="row border px-1 py-3 d-flex justify-content-between align-items-center">
+   <div class="row border px-1 pt-3 d-flex justify-content-between align-items-center">
       <!-- column 1 -->
       <div class="col bg-light">
          <form action="../validation/signup-process.php" method="POST" class="needs-validation d-flex flex-column px-3"
@@ -244,12 +244,12 @@ function testAPI() { // Testing Graph API after login.  See statusChangeCallback
                         </div>
                      </div>
                   </div>
-                  <div class="col">
-                     <div class=" d-flex flex-column justify-content-center align-items-center gap-3 mt-4">
+                  <div class="col w-100">
+                     <div class="w-100 d-flex flex-column justify-content-center align-items-stretch gap-3 mt-4">
                         <!-- SIGN UP BUTTON -->
-                        <button class="btn btn-primary btn-block" type="submit" name="signup-submit" id="submit"><i
+                        <button class="btn btn-primary" type="submit" name="signup-submit" id="submit"><i
                               class="fa-solid fa-user-plus me-2"></i> Sign Up</button>
-                        <p>Already have an account? <a href="../entry/login.php">login here.</a></p>
+                        <p class="text-center">Already have an account? <a href="../entry/login.php">Login Here</a></p>
                      </div>
                   </div>
                   <?php
