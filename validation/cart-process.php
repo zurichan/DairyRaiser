@@ -12,7 +12,9 @@ $json_obj = array();
 $api = new MyAPI($main_conn);
 
 if (isset($_SESSION['users']) && isset($_POST['quantities']) && isset($_POST['product_name'])) {
-    if ($_POST['quantities'] != 0) {
+    if ($_POST['quantities'] >= 0) {
+
+        $quantity = filter_input(INPUT_POST, 'quantities', FILTER_SANITIZE_NUMBER_INT);
         $product_name = filter_input(INPUT_POST, 'product_name', FILTER_SANITIZE_SPECIAL_CHARS);
         $user_info = $api->Read('user', 'set', 'user_id', $_SESSION['users'][0]->user_id);
         $user_shopping_session = $api->Read('shopping_session', 'set', 'user_id', $_SESSION['users'][0]->user_id);
@@ -27,8 +29,8 @@ if (isset($_SESSION['users']) && isset($_POST['quantities']) && isset($_POST['pr
         }
 
         $api->Update('cart_item', 'cart_id', [
-            '1' => ['quantity', $_POST['quantities']],
-            '2' => ['total_unitPrice',  $products[0]->price * $_POST['quantities']]
+            '1' => ['quantity', $quantity],
+            '2' => ['total_unitPrice',  $products[0]->price * $quantity]
         ], $selected_item_product[0]->cart_id);
 
         $total_price = $api->Sum('cart_item', 'set', 'total_unitPrice', 'session_id', $user_shopping_session[0]->session_id);
@@ -40,9 +42,8 @@ if (isset($_SESSION['users']) && isset($_POST['quantities']) && isset($_POST['pr
 
         $shopping_cart = $api->Read('shopping_session', 'set', 'user_id', $user_info[0]->user_id);
 
-        $json_obj['subtotal'] = '₱' . $products[0]->price * $_POST['quantities'] . '.00';
+        $json_obj['subtotal'] = '₱' . $products[0]->price * $quantity . '.00';
         $json_obj['ordertotal'] = '₱' . $shopping_cart[0]->total . '.00';
-
         $json = json_encode($json_obj);
         echo $json;
     }

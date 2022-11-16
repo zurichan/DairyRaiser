@@ -70,7 +70,7 @@ if (isset($_SESSION['users'])) {
                      <div class="input-group input-group-sm">
                         <button type="button" class="input-group-text decrement-btn">-</button>
                         <input type="number" class="form-control text-center quantity" style="width: 5px;" id="quantity"
-                           name="quantity" value="<?= $item->quantity; ?>">
+                           name="quantity" value="<?= $item->quantity; ?>" readonly>
                         <button type="button" class="input-group-text increment-btn">+</button>
                      </div>
                   </td>
@@ -125,16 +125,17 @@ if (isset($_SESSION['users'])) {
                      </div>
                      <div class="border-top pt-3 d-flex justify-content-evenly align-items-center">
                         <div class="text-muted d-flex flex-column justify-content-center align-items-start gap-2 mb-3">
-                           <h6 class="card-text" style="font-size: 15px;">Item: <span style="font-family: Kayak Bold"
-                                 class=""><?= $item_rows; ?></span> </h6>
-                           <h6 class="card-text" style="font-size: 15px;">Quantity: <span
-                                 style="font-family: Kayak Bold;" class=""><?= $total_qty . ' ' . $portion; ?></span>
-                           </h6>
+                           <h6 class="card-text" style="font-size: 15px;">You have <span
+                                 class="text-decoration-underline"><?= $item_rows; ?></span> Item(s)</h6>
+                           <!-- <h6 class="card-text" style="font-size: 15px;">Quantity: <span
+                                 style="font-family: Kayak Bold;"
+                                 id="display_quantity"><?= $total_qty . ' ' . $portion; ?></span>
+                           </h6> -->
                         </div>
                         <div class="">
                            <h5 class="card-text text-primary " style="font-family: Public Sans ExBold;">Order Total:
                            </h5>
-                           <h2 style="font-family: Kayak Bold; font-size: 25px;" class="">
+                           <h2 style="font-family: Kayak Bold; font-size: 25px;" id="total-order-price">
                               ₱<?= $user_shopping_session[0]->total; ?>.00</h2>
                         </div>
                      </div>

@@ -79,16 +79,15 @@ require_once './includes/navbar.php';
                </div>
             </li>
             <li class="glide__slide ">
-               <div class="j d-flex flex-column justify-content-center align-items-center">
-                  <h1>Milk taste so good</h1>
-                  <h5>It does a body good!</h5>
+               <div class="d-flex flex-column justify-content-center align-items-center">
+                  <!-- <h1>Milk taste so good</h1>
+                  <h5>It does a body good!</h5> -->
                </div>
             </li>
             <li class="glide__slide">
-
-               <div class="jumbotron d-flex flex-column justify-content-center align-items-center">
-                  <h1>Have You Had Your Dairy Today?</h1>
-                  <h5>Buffalo Milk is a Nutritional Purchase</h5>
+               <div class="d-flex flex-column justify-content-center align-items-center">
+                  <!-- <h1>Have You Had Your Dairy Today?</h1>
+                  <h5>Buffalo Milk is a Nutritional Purchase</h5> -->
                </div>
             </li>
          </ul>

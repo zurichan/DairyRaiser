@@ -10,6 +10,8 @@ require_once '../includes/classes.php';
 
 $api = new MyAPI($main_conn);
 
+$user_id = $_SESSION['users'][0]->user_id;
+
 /** ADD NEW ADDRESS */
 if (isset($_POST['add-address-process'])) {
 
@@ -304,6 +306,49 @@ if (isset($_POST['update_address'])) {
     }
 
     header('Location: ../user/account/addresses.php');
+    exit();
+}
+
+/** CHANGE DEFAULT ADDRESS IN CHECKOUT */
+if (isset($_POST['change_address'])) {
+    $selected_address = filter_input(INPUT_POST, 'select_address', FILTER_VALIDATE_INT);
+    $sql = "SELECT * FROM `user_address` WHERE `user_id` = $user_id AND `address_id` = $selected_address LIMIT 1";
+    $stmt = $main_conn->query($sql);
+    $stmt->execute();
+    $result = $stmt->fetchAll();
+    if (!empty($result)) {
+        if ($result[0]->isDefault != 'yes') {
+            $sql = "SELECT * FROM `user_address` WHERE `user_id` = $user_id AND `isDefault` = 'yes' LIMIT 1";
+            $stmt = $main_conn->query($sql);
+            $stmt->execute();
+            $default_address = $stmt->fetchAll();
+            $api->Update('user_address', 'address_id', [
+                '1' => ['isDefault', "'no'"]
+            ], $default_address[0]->address_id);
+            $api->Update('user_address', 'address_id', [
+                '1' => ['isDefault', "'yes'"]
+            ], $selected_address);
+            $_SESSION['checkout-message'] = array(
+                "title" => 'Default Address has been Changed',
+                "body" => '',
+                "type" => 'success'
+            );
+        } else {
+            $_SESSION['checkout-message'] = array(
+                "title" => 'Address is already Default',
+                "body" => '',
+                "type" => 'error'
+            );
+        }
+    } else {
+        $_SESSION['checkout-message'] = array(
+            "title" => 'Something went Wrong',
+            "body" => '',
+            "type" => 'error'
+        );
+    }
+
+    header('Location: ../shop/checkout.php');
     exit();
 }
 

@@ -447,13 +447,17 @@ if (isset($_POST['submit'])) {
 
         // https://www.dairyraisers.com/
 
+
         $mail->Body = "
-            <div>
-    <h5 style='font-size: 25px;'>Greetings <span style='font-weight: bolder;'>$fname !</span> You Have Registered at Dairy Raisers</h5>
-        <p style='font-size: 17px;'>Verify your Email Address to Login with the given Token below:</p>
-        <a style='text-decoration: none; color: navy; font-weight: bolder; border: 2px solid navy; padding: 10px;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
-        <p>Your Verification Token will expire within 10 minutes.</p>        
-        ";
+<div style='display: flex;'>
+   <h4 style='text-align: center; margin-right: 10px;'>Dairy Raisers</h4>
+   <img src='cid:companylogo' style='width: 100px;'>
+</div>
+<p>Hi <span style='font-weight: bolder;'>$fname !</span> You are now registered at Dairy Raisers. Please verify this Email Address by clicking the link below:</p>
+<a style='font-weight: bolder;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
+<p>This Verification Token will expire within 10 minutes. Please DO NOT share this link to anyone.</p>
+";
+        $mail->addEmbeddedImage(dirname(__DIR__) . '/OfficialDairyRaisers/img/company-logo.png', 'companylogo', 'company-logo.png');
         $mail->send();
 
         // INPUT USER, USER ADDRESS, AND ADD A SHOPPING SESSION DATA IN DATABASE

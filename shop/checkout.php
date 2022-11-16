@@ -39,194 +39,180 @@ if (isset($_SESSION['users'])) {
 <div class="modal fade" id="select_address" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
    aria-labelledby="staticBackdropLabel" aria-hidden="true">
    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <form class="modal-content" method="POST" action="../process/process-product.php" enctype="multipart/form-data">
+      <form class="modal-content" method="POST" action="../validation/address-process.php"
+         enctype="multipart/form-data">
          <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">Change Address: </span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
          <div class="modal-body">
             <?php
-                  $index = 1; ?>
+                  $index = 1;
+                  foreach ($user_address as $address) {
+                     if ($address->isDefault == 'yes') { ?>
             <div class="form-check mb-3">
-               <input class="form-check-input" type="radio" name="Select_Address" id="<?= 'address' . $index; ?>"
-                  checked>
+               <input class="form-check-input" value="<?= $address->address_id; ?>" type="radio" name="select_address"
+                  id="<?= 'address' . $index; ?>" checked>
                <label class="form-check-label" for="<?= 'address' . $index; ?>">
-                  <?php
-                        foreach ($user_address as $address) {
-                           if ($address->isDefault == 'yes') {
-                              echo $address->complete_address;
-                              break;
-                           }
-                        }
-                        $index++;
-                        ?>
+                  <?= $address->complete_address; ?>
                </label>
             </div>
             <?php
-                  foreach ($user_address as $address) {
-                  ?>
-            <?php
-                     if ($address->isDefault !== 'yes') { ?>
+                     } else { ?>
             <div class="form-check mb-3">
-               <input class="form-check-input" type="radio" name="Select_Address" id="<?= 'address' . $index; ?>">
+               <input class="form-check-input" value="<?= $address->address_id; ?>" type="radio" name="select_address"
+                  id="<?= 'address' . $index; ?>">
                <label class="form-check-label" for="<?= 'address' . $index; ?>">
                   <?= $address->complete_address; ?>
                </label>
             </div>
             <?php
                      }
+                     $index++;
                   }
-                  $index++;
                   ?>
-
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" id="update-product" name="select_addres" class="btn btn-primary">Select
+            <button type="submit" id="update-product" name="change_address" class="btn btn-primary">Select
                Address</button>
          </div>
       </form>
    </div>
 </div>
 
-<main style="font-family: Roboto;"
-   class="border container p-4 mt-3 mb-3 bg-light d-flex justify-content-between align-items-center">
-   <div class="w-100">
-      <h1 class="fw-bolder">Checkout Products</h1>
-   </div>
-   <div class="w-100 p-3 bg-light text-black border border-primary rounded">
-      <div class="mb-4 d-flex justify-content-between align-items-center">
-         <h2 class="fw-bolder">DELIVERY ADDRESS :</h2>
-         <button type="button" data-bs-target="#select_address" data-bs-toggle="modal" class="btn btn-primary">Change
-            Address</button>
-      </div>
-      <hr>
-      <div class="w-100 d-flex flex-column justify-content-between align-items-center">
-         <div class="w-100 text-center d-flex justify-content-between align-items-center">
-            <div class="w-100 text-center d-flex justify-content-start align-items-center">
-               <p class="lead text-muted" style="font-size: 15px;">Full Name : </p>
-               <p class="lead ms-2 fw-bold" style="font-size: 15px;">
-                  <?= $_SESSION['users'][0]->firstname . ' ' . $_SESSION['users'][0]->lastname; ?></p>
+<main style="width: 100%; margin-top: 70px; padding-left: 180px; padding-right: 180px;">
+   <section class="border p-3">
+      <div style="font-family: Roboto;"
+         class="container bg-light d-flex flex-column justify-content-between gap-3 align-items-center">
+         <div class="d-flex justify-content-between gap-3 align-items-center">
+            <div class="w-100 text-center px-3">
+               <h1 style="font-family: Aquino;">Checkout Products</h1>
+            </div>
+            <div class="p-3 border rounded" style="font-family: Public Sans Light;">
+               <div class=" d-flex justify-content-between align-items-center">
+                  <h5 style="font-family: Public Sans ExBold;">Delivery Address :</h5>
+                  <button type="button" data-bs-target="#select_address" data-bs-toggle="modal"
+                     class="btn btn-sm btn-primary">Change
+                     Address</button>
+               </div>
+               <hr>
+               <div style="font-size: 13px;" class="w-100">
+                  <div class="w-100 text-center d-flex justify-content-between align-items-center">
+                     <p style="font-size: inherit; white-space: nowrap;" class="w-100 text-start"><span
+                           class="text-muted">Full Name :
+                        </span><span><?= $_SESSION['users'][0]->firstname . ' ' . $_SESSION['users'][0]->lastname; ?></span>
+                     </p>
+                     <p style="font-size: inherit; white-space: nowrap;" class="w-100 text-start"><span
+                           class="text-muted">Phone Number(+63) :
+                        </span><span><?= $user_info[0]->mobile_no; ?></span></p>
+                  </div>
+                  <p style="font-size: inherit; white-space: nowrap;" class="w-100 text-start">
+                     <span class=" text-muted">
+                        Complete
+                        Address :</span>
+                     <span>
+                        <?php
+                              foreach ($user_address as $address) {
+                                 if ($address->isDefault == 'yes') {
+                                    echo $address->complete_address;
+                                    break;
+                                 }
+                              }
+                              ?>
+                     </span>
+                  </p>
+                  <p style="font-size: inherit; white-space: nowrap;" class="w-100 text-start"><span
+                        class="text-muted">Landmark : </span><span class=""><?= $user_address[0]->landmark; ?></span>
+                  </p>
+               </div>
             </div>
          </div>
-         <div class="w-100 text-center d-flex justify-content-start align-items-center">
-            <p class="lead text-muted" style="font-size: 15px;">Phone Number(+63) :</p>
-            <p class="lead ms-2 fw-bold" style="font-size: 15px;"><?= $user_info[0]->mobile_no; ?></p>
-         </div>
-         <div class="w-100 text-center d-flex justify-content-start align-items-center">
-            <p class="lead text-muted" style="font-size: 15px; text-overflow: ellipsis; white-space: nowrap;">Complete
-               Address :</p>
-            <p class="lead ms-2 fw-bold" style="font-size: 15px; text-overflow: ellipsis; white-space: nowrap;">
-               <?php
-                     foreach ($user_address as $address) {
-                        if ($address->isDefault == 'yes') {
-                           echo $address->complete_address;
-                           break;
-                        }
-                     }
-                     ?>
-            </p>
-         </div>
-         <div class="w-100 text-center d-flex justify-content-start align-items-center">
-            <p class="lead text-muted" style="font-size: 15px;">Landmark : </p>
-            <p class="lead ms-2 fw-bold" style="font-size: 15px;"><?= $user_address[0]->landmark; ?></p>
-         </div>
-      </div>
-   </div>
-</main>
-<main class="s container p-3 mt-3 mb-3 px-5 bg-light">
-   <table class="table table-striped table-bordered mb-3">
-      <thead class="text-center">
-         <tr>
-            <th>#</th>
-            <th>Products</th>
-            <th>Unit Price</th>
-            <th>Quantity</th>
-            <th class="text-end">Item Subtotal</th>
-         </tr>
-      </thead>
-      <tbody class="text-center">
-         <?php
-               $index = 1;
-               foreach ($all_cart_items as $item) {
-                  $productItem = $api->Read('products', 'set', 'product_id', $item->product_id);
+         <div class="container my-2">
+            <table class="table table-striped table-bordered" id="checkout-table" style="width: 100%;">
+               <thead class="text-center">
+                  <tr>
+                     <th>Products</th>
+                     <th>Unit Price</th>
+                     <th>Quantity</th>
+                     <th class="text-end">Item Subtotal</th>
+                  </tr>
+               </thead>
+               <tbody class="text-center">
+                  <?php
+                        $index = 1;
+                        foreach ($all_cart_items as $item) {
+                           $productItem = $api->Read('products', 'set', 'product_id', $item->product_id);
 
-               ?>
-         <tr class="cart_item">
-            <td><?= $index; ?>.</td>
-            <!-- PRODUCT -->
-            <td colspan="" class="d-flex justify-content-center align-items-center">
-               <img class="img-fluid logo" src="./img/<?= $productItem[0]->img_url; ?>" alt="" srcset="">
-               <p class=" productname mx-3"><?= $productItem[0]->productname; ?></p>
-            </td>
-            <!-- UNIT PRICE -->
-            <td colspan="s">
-               <p>₱<?= $productItem[0]->price; ?>.00</p>
-            </td>
-            <!-- QUANTITY -->
-            <td>
-               <p><?= $item->quantity; ?></p>
-            </td>
-            <!-- ITEM SUB TOTAL -->
-            <td class="text-end">
-               <span class="sumProducts">₱<?= $item->total_unitPrice;  ?>.00</span>
-            </td>
-         </tr>
-         <?php
-                  $index++;
-               } ?>
-         <tr>
-            <td rowspan="2" colspan="4">
-               <form action="" method="POST" class="form row">
-                  <div class="col form-floating">
-                     <textarea class="form-control" name="instructions" id="instructions" maxlength="255" cols="10"
-                        rows="1"></textarea>
-                     <label for="instructions">Order Special Instructions: </label>
+                        ?>
+                  <tr class="cart_item">
+
+                     <!-- PRODUCT -->
+                     <td>
+                        <div class="d-flex justify-content-center align-items-center">
+                           <img class="img-fluid logo" src="./img/<?= $productItem[0]->img_url; ?>" alt="" srcset="">
+                           <p class=" productname mx-3"><?= $productItem[0]->productname; ?></p>
+                        </div>
+                     </td>
+                     <!-- UNIT PRICE -->
+                     <td>
+                        <p>₱<?= $productItem[0]->price; ?>.00</p>
+                     </td>
+                     <!-- QUANTITY -->
+                     <td>
+                        <p><?= $item->quantity; ?></p>
+                     </td>
+                     <!-- ITEM SUB TOTAL -->
+                     <td class="text-end">
+                        <span class="sumProducts">₱<?= $item->total_unitPrice;  ?>.00</span>
+                     </td>
+                  </tr>
+                  <?php
+                           $index++;
+                        } ?>
+               </tbody>
+               <tfoot class="fw-bolder" style="font-size: 15px;">
+                  <td colspan="3" class="text-end">
+                     Total:
+                  </td>
+                  <td class="text-end">
+                     ₱<?= $user_shopping_session[0]->total; ?>.00
+                  </td>
+               </tfoot>
+            </table>
+         </div>
+         <form method="POST" action="../validation/checkout-process.php" class="w-100 border rounded p-2">
+            <div class="w-100 container p-3 d-flex justify-content-between align-items-stretch">
+               <div class="w-100">
+                  <div class="form-floating mb-2">
+                     <textarea class="form-control form-control-sm" placeholder="Add a Instruction"
+                        id="AddInstruction"></textarea>
+                     <label for="AddInstruction">Additional Instruction</label>
                   </div>
-                  <div class="col form-floating">
-                     <select class="form-control" name="payment_method" id="payment_method">
+                  <div class="form-floating">
+                     <select class="form-select form-select-sm" name="payment_method" id="payment_method">
                         <option value="COD" selected>Cash on Delivery</option>
                      </select>
                      <label for="payment_method">Payment Method:</label>
                   </div>
-               </form>
-            </td>
-         </tr>
-         <tr class="text-end">
-            <td colspan="4">
-               <span class="total-order-pieces">Order Total (<?= $item_rows; ?> item):</span>
-               <h4 class="total-order-price fw-bolder">₱<?= $user_shopping_session[0]->total; ?>.00</h4>
-            </td>
-         </tr>
-      </tbody>
-   </table>
+               </div>
+               <div class="w-100 d-flex flex-column justify-content-center align-items-end">
+                  <p>Merchandise Total: <span>₱<?= $user_shopping_session[0]->total; ?>.00</span></p>
+                  <p>Shipping Fee: <span>₱50.00</span></p>
+                  <p>Total Payment: <span
+                        class="fw-bolder text-primary text-decoration-underline">₱<?= $user_shopping_session[0]->total + 50; ?>.00</span>
+                  </p>
+               </div>
+            </div>
+            <hr>
+            <div class="container d-flex gap-3 justify-content-end align-items-center py-2">
+               <a href="./cart.php" class="btn btn-danger">Go Back</a>
+               <button type="submit" name="place-order" class="btn btn-primary">Place Order</button>
+            </div>
+         </form>
+      </div>
+   </section>
 </main>
-<div class="border container py-3 px-5 bg-light">
-   <div class="d-flex justify-content-between">
-      <div class="d-flex flex-column">
-         <span class="mb-2">Merchandise Total: </span>
-         <span class="mb-2">Shipping Fee: </span>
-         <span>Total Payment: </span>
-      </div>
-      <div class="d-flex flex-column">
-         <span class="mb-2">₱<?= $user_shopping_session[0]->total; ?>.00</span>
-         <span class="mb-2">₱50.00</span>
-         <h4 class="text-primary fw-bolder">₱<?= $user_shopping_session[0]->total + 50; ?>.00</h4>
-      </div>
-   </div>
-</div>
-<form method="POST" action="../validation/checkout-process.php"
-   class="border container d-flex justify-content-between py-3 px-5 bg-light">
-   <div class="form-floating">
-      <select class="form-select" name="payment_method" id="payment_method">
-         <option value="COD" selected>Cash on Delivery</option>
-      </select>
-      <label for="payment_method">Payment Method:</label>
-   </div>
-   <a href="./cart.php" class="btn btn-danger">Go Back</a>
-   <button type="submit" name="place-order" class="btn btn-primary">Place Order</button>
-</form>
-
 <?php
    } else {
 
@@ -238,4 +224,21 @@ if (isset($_SESSION['users'])) {
    exit();
 }
 require_once '../includes/footer.php';
+if (isset($_SESSION['checkout-message'])) : ?>
+<script>
+swal(
+   "<?= $_SESSION['checkout-message']['title']; ?>",
+   "<?= $_SESSION['checkout-message']['body']; ?>",
+   "<?= $_SESSION['checkout-message']['type']; ?>"
+);
+</script>
+<?php
+endif;
+unset($_SESSION['checkout-message']);
 ?>
+
+<script>
+$(document).ready(() => {
+   $('#checkout-table').DataTable();
+})
+</script>
