@@ -8,10 +8,10 @@ require_once '../../includes/classes.php';
 
 
 if (isset($_GET['reset-btn'])) {
-    unset($_GET['reset-btn']);
-    unset($_GET['material_search']);
-    unset($_GET['search_filter']);
-    header('Location: ./raw-materials.php');
+   unset($_GET['reset-btn']);
+   unset($_GET['material_search']);
+   unset($_GET['search_filter']);
+   header('Location: ./raw-materials.php');
 }
 
 $api = new MyAPI($main_conn);
@@ -20,22 +20,36 @@ $all_products = $api->Read('products', 'all');
 $all_products_rows = $api->Read('products', 'all', NULL, NULL, true);
 $total_finished_goods = $api->Sum('product_stocks', 'all', 'finished_goods');
 $total_raw_materials = $api->Sum('raw_materials', 'all', 'stocks');
+$supplier = $api->Read('supplier', 'all');
+$material_stock = $api->Read('material_stock', 'all');
 $raw_materials = $api->Read('raw_materials', 'all');
 
-$title = 'Raw Materials | Dairy Raisers';
+$header = '';
+$title = 'Raw Materials';
+$page_pass = 0;
+if (isset($_GET['page'])) {
+   $page = $_GET['page'];
+   $page_arr = array('view', 'purchase_material');
+   (in_array($page, $page_arr)) ? $page_pass++ : NULL;
+   if ($page_pass == 1) {
+      if ($page == $page_arr[0]) {
+         $header = 'Raw Materials List';
+         $title = 'Raw Materials';
+         $all_suppliers = $api->Read('supplier', 'all');
+      } else if ($page == $page_arr[1]) {
+         $header = 'Purchase Material';
+         $title = 'Purchase Materials';
+      }
+   }
+}
+
+$title = $title . ' | Dairy Raisers';
 $path = 2;
 require_once '../includes/admin.header.php';
 require_once '../includes/admin.sidebar.php';
 
+if ($page_pass == 1) {
 ?>
-
-<style>
-.dt-buttons,
-.dataTables_filter {
-   margin-top: 10px;
-}
-</style>
-
 
 <!-- HEADER CONTAINER -->
 <div class="border-bottom d-flex flex-row justify-content-between align-items-center overflow-hidden pb-2 mb-3">
@@ -63,93 +77,142 @@ require_once '../includes/admin.sidebar.php';
          </div>
       </div>
    </div>
-   <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#add-product"><i
-         class="bi bi-plus-circle"></i> Add New Product</button>
+   <div class="btn-group-vertical gap-2">
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+         data-bs-target="#add-new-supplier"><i class="bi bi-plus-circle"></i> Add New
+         Supplier</button>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+         data-bs-target="#add-new-material"><i class="bi bi-plus-circle"></i> Add New
+         Material</button>
+      <a href="./raw-materials.php?page=purchase_material" class="btn btn-sm btn-success"><i
+            class="bi bi-box-arrow-down"></i> Purchase
+         Material</a>
+   </div>
 </div>
-
+<?php
+}
+?>
+<?php if (isset($page) && $page == 'view') { ?>
 <!-- MAIN CONTENT -->
 <div class="table-responsive">
-   <table class="table table-bordered table-hover table-striped" id="productTable"
-      style="width: 100%; font-size: 13px;">
+   <table class="table table-hover table-striped" id="materialTable" style="width: 100%; font-size: 13px;">
       <thead>
          <tr>
-            <th>material id</th>
             <th>Supplier</th>
             <th>Materials Name</th>
             <th>Purchasing Price</th>
             <th>Stocks</th>
-            <th>Modified</th>
+            <th>Date</th>
             <th>Actions</th>
          </tr>
       </thead>
       <tbody class="text-center">
          <?php
             $index = 1;
-
-            foreach ($raw_materials as $materials) : ?>
-
+            foreach ($material_stock as $materials) : ?>
          <tr id="<?= $index; ?>">
-            <td data-target="material_id"><?= $materials->materials_id; ?></td>
-            <td data-target="supplier"><?= $materials->supplier; ?></td>
-            <td data-target="raw_materials" class="raw_materials"><?= $materials->materials; ?></td>
-            <td data-target="material_price">₱<?= $materials->price; ?>.00</td>
-            <td data-target="material_stocks"><?= $materials->stocks; ?></td>
-            <td><?= $materials->lastUpdate; ?></td>
             <td>
-               <a href="#" data-role="update" data-id="<?= $index; ?>"
-                  class="update-materials btn btn-sm btn-primary">update</a>
-               <button type="button" class="remove-materials btn btn-sm btn-danger">remove</button>
+               <?php
+                     $supplier = $api->Read('supplier', 'set', 'supplier_id', $materials->supplier_id);
+                     ?>
+               <span class=""><?= $supplier[0]->supplier_name; ?></span>
+            </td>
+            <td><?= $materials->material_name; ?></td>
+            <td>₱<?= $materials->price; ?>.00</td>
+            <td><?= $materials->stocks; ?></td>
+            <td><?= $materials->date; ?></td>
+            <td>
+               <div class="btn-group gap-2">
+                  <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-arrow-clockwise"></i></a>
+                  <button type="button" class="remove-materials btn btn-sm btn-danger"><i
+                        class="bi bi-file-earmark-x"></i></button>
+               </div>
             </td>
          </tr>
-
          <?php
-
-                $index++;
+               $index++;
             endforeach;
             ?>
       </tbody>
       <tfoot>
          <tr>
-            <th>material id</th>
             <th>Supplier</th>
             <th>Materials Name</th>
             <th>Purchasing Price</th>
             <th>Stocks</th>
-            <th>Modified</th>
+            <th>Date</th>
             <th>Actions</th>
          </tr>
       </tfoot>
    </table>
 </div>
-<?php require_once('../includes/admin.footer.php'); ?>
+<?php } else if (isset($page) && $page == 'purchase_material') { ?>
+<?php } else {
+   require_once '../../includes/404_page.php';
+}
+require_once('../includes/admin.footer.php'); ?>
 
-
-<!-- Add Modal -->
-<div class="modal fade" id="add-materials" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<!-- ADD NEW MATERIAL -->
+<div class="modal fade" id="add-new-material" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
    aria-labelledby="staticBackdropLabel" aria-hidden="true">
    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <form class="modal-content" method="POST" action="../process/process-materials.php" enctype="multipart/form-data">
+      <form class="modal-content" method="POST" action="../process/process-rm.php" enctype="multipart/form-data">
          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Add Materials:</span></h5>
+            <h5 class="modal-title" id="staticBackdropLabel">Add Material:</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
          </div>
-         <div class="modal-body">
-            <label class="form-label" for="supplier">supplier: </label>
-            <input class="form-control mb-4" type="text" name="supplier" id="supplier" required>
-
-            <label class="form-label" for="material">material: </label>
-            <input class="form-control mb-4" type="text" name="material" id="material" required>
-
-            <label class="form-label" for="price">price: </label>
-            <input class="form-control mb-4" type="number" name="price" id="price" required>
-
-            <label class="form-label" for="material_stocks">stocks: </label>
-            <input class="form-control mb-4" type="number" name="material_stocks" id="material_stocks" required>
+         <div class="modal-body d-grid gap-3">
+            <div class="form-floating">
+               <select name="supplier" id="supplier" class="form-select form-select-sm">
+                  <?php
+                  foreach ($all_suppliers as $supplier) {
+                  ?>
+                  <option value="<?= $supplier->supplier_id; ?>"><?= $supplier->supplier_name; ?></option>
+                  <?php
+                  }
+                  ?>
+               </select>
+               <label for="supplier" class="form-label">Supplier:</label>
+            </div>
+            <div class="form-floating">
+               <input class="form-control form-control-sm" type="text" name="material" id="material" required>
+               <label class="form-label" for="material">Material: </label>
+            </div>
+            <div class="form-floating">
+               <input class="form-control form-control-sm" type="number" name="price" id="price" required>
+               <label class="form-label" for="price">Price: </label>
+            </div>
+            <div class="form-floating">
+               <input class="form-control form-control-sm" type="number" name="stocks" id="stocks">
+               <label class="form-label" for="stocks">Stocks: </label>
+            </div>
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" id="add-material" name="add-material" class="btn btn-primary">Add Material</button>
+            <button type="submit" name="add-new-material" class="btn btn-primary">Submit</button>
          </div>
+      </form>
+   </div>
+</div>
+
+<!-- ADD NEW SUPPLIER -->
+<div class="modal fade" id="add-new-supplier" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+   aria-labelledby="staticBackdropLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <form class="modal-content" method="POST" action="../process/process-rm.php" enctype="multipart/form-data">
+         <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Add Supplier:</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <div class="modal-body d-grid gap-3">
+            <div class="form-floating">
+               <input type="text" name="new-supplier" id="new-supplier" class="form-control form-control-sm" required>
+               <label for="new-supplier" class="form-label">Supplier name:</label>
+            </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+               <button type="submit" name="add-new-supplier" class="btn btn-primary">Submit</button>
+            </div>
       </form>
    </div>
 </div>
@@ -207,11 +270,12 @@ unset($_SESSION['material-message']);
 
 <script>
 $(document).ready(function() {
-   $('#materialsTable').DataTable({
+   $('#materialTable').DataTable({
       dom: 'Bfrtip',
-      buttons: [
-         '<button type="button" class="btn btn-primary me-3" id="add-materials-btn" data-bs-toggle="modal" data-bs-target="#add-materials">Add Materials</button>',
-      ]
+      lengthChange: true,
+      buttons: ['copy', 'excel', 'pdf', 'colvis']
    });
+
+
 });
 </script>

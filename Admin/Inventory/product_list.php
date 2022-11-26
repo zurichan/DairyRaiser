@@ -15,8 +15,8 @@ $all_stock_available = 0;
 $all_holding_stock = 0;
 
 foreach ($products as $product) {
-  $all_stock_available += $product->stock_avail;
-  $all_holding_stock += $product->holding_stock;
+   $all_stock_available += $product->stock_avail;
+   $all_holding_stock += $product->holding_stock;
 }
 
 $title = 'Product List | Dairy Raisers';
@@ -67,13 +67,16 @@ require_once '../includes/admin.sidebar.php';
          </div>
          <div class="modal-body">
             <div class="form-group input-group mb-3">
+               <span class="input-group-text">
+                  DR_
+               </span>
                <div class="form-floating form-floating-group flex-grow-1">
                   <input type="text" class="form-control form-control-sm" name="product-code" id="product-code"
                      placeholder="enter product code" required>
                   <label for="product-code" class="form-label">Product Code: </label>
                </div>
                <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="Product Code must be unique">
+                  title="Code must have atleast 3 digits and letters.">
                   <i class="bi bi-info-circle"></i>
                </span>
             </div>
@@ -215,9 +218,9 @@ require_once '../includes/admin.sidebar.php';
       </thead>
       <tbody id="productData">
          <?php
-      $index = 1;
-      foreach ($products as $product) :
-      ?>
+         $index = 1;
+         foreach ($products as $product) :
+         ?>
          <tr>
             <td class="fw-bold" data-target="product-id"><?= $product->product_id; ?></td>
             <td class="fw-bold" data-target="product-code"><?= $product->productcode; ?></td>
@@ -253,9 +256,9 @@ require_once '../includes/admin.sidebar.php';
             </td>
          </tr>
          <?php
-        $index++;
-      endforeach;
-      ?>
+            $index++;
+         endforeach;
+         ?>
       </tbody>
       <tfoot>
          <tr>

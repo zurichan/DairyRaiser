@@ -64,7 +64,8 @@
                <div style="font-size: 13px;"
                   class="bg-dark d-flex flex-column justify-content-center aligm-items-center text-end py-1 pe-4 w-100">
                   <a class="nav-link text-decoration-none" href="../../../Admin/Inventory/product_list.php">Products</a>
-                  <a class="nav-link text-decoration-none" href="../../../Admin/Inventory/raw-materials.php">Raw
+                  <a class="nav-link text-decoration-none"
+                     href="../../../Admin/Inventory/raw-materials.php?page=view">Raw
                      Materials</a>
                </div>
             </div>

@@ -19,6 +19,10 @@ if (isset($_POST['add-product']) && isset($_SESSION['admins'])) {
     $stock_avail = filter_input(INPUT_POST, 'product-stock-avail', FILTER_VALIDATE_INT);
     $holding_stock = filter_input(INPUT_POST, 'product-holding-stock', FILTER_VALIDATE_INT);
 
+    $product_code = strtoupper($product_code);
+    $product_code = str_replace(" ", "", $product_code);
+
+    $all_product = $api->Read('products', 'all');
     $error_count = 0;
 
     (empty($product_name)) ? $error_count++ : NULL;
@@ -31,7 +35,8 @@ if (isset($_POST['add-product']) && isset($_SESSION['admins'])) {
     ($stock_avail < 0) ? $error_count++ : NULL;
     ($holding_stock < 0) ? $error_count++ : NULL;
 
-    strtoupper($product_code);
+    $code_len = strlen($product_code);
+    ($code_len != 6) ? $error_count++ : NULL;
 
     (!isset($_FILES['product-image'])) ? $error_count++ : NULL;
 
@@ -45,33 +50,48 @@ if (isset($_POST['add-product']) && isset($_SESSION['admins'])) {
 
     (in_array($file_ext, $ext)) ? NULL :  $error_count++;
     (!($file_size <= 1000000)) ? $error_count++ : NULL;
+    if ($error_count == 0) {
 
-    if ($error_count === 0) {
+        $is_duplicate = false;
+        $product_code = 'DR_' . $product_code;
+        foreach ($all_product as $product) {
+            if ($product->productcode == $product_code) {
+                $is_duplicate = true;
+                break;
+            }
+        }
 
-        move_uploaded_file($file_tmp, $target_dir);
-        $api->Create('products', [
-            'key1' => ['img_url', "'$target_dir'"],
-            'key2' => ['productname', "'$product_name'"],
-            'key3' => ['description', "'$description'"],
-            'key4' => ['price', $price],
-            'key5' => ['update', "'$date'"],
-            'key6' => ['productcode', "'$product_code'"]
-        ]);
+        if ($is_duplicate == false) {
+            move_uploaded_file($file_tmp, $target_dir);
+            $api->Create('products', [
+                'key1' => ['img_url', "'$target_dir'"],
+                'key2' => ['productname', "'$product_name'"],
+                'key3' => ['description', "'$description'"],
+                'key4' => ['price', $price],
+                'key5' => ['update', "'$date'"],
+                'key6' => ['productcode', "'$product_code'"]
+            ]);
 
-        $_SESSION['product-message'] = array(
-            "title" => 'Success',
-            "body" => 'Product has been Added.',
-            "type" => 'success'
-        );
-        header('Location: ../Inventory/product_list.php');
+            $_SESSION['product-message'] = array(
+                "title" => 'Success',
+                "body" => 'Product has been Added.',
+                "type" => 'success'
+            );
+        } else {
+            $_SESSION['product-message'] = array(
+                "title" => 'Product Code is Duplicated',
+                "body" => 'Please Try Again.',
+                "type" => 'error'
+            );
+        }
     } else {
         $_SESSION['product-message'] = array(
             "title" => 'Invalid!',
             "body" => 'Invalid Product Input. Please Try Again.',
             "type" => 'error'
         );
-        header('Location: ../Inventory/product_list.php');
     }
+    header('Location: ../Inventory/product_list.php');
 }
 
 //REMOVING A PRODUCT

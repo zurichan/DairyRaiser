@@ -59,7 +59,7 @@ class MyAPI
     }
 
     /** READ */
-    public function Read(string $tableName, string $method, $target = false, $values = 'false', bool $rows_only = false)
+    public function Read(string $tableName, string $method, $target = NULL, $values = 'NULL', bool $rows_only = FALSE)
     {
         $query = '';
         $statement = '';
@@ -77,13 +77,13 @@ class MyAPI
                 break;
         }
         $statement = $this->db->prepare($query);
-        // if ($values == 'false') {
+        // if ($values == 'NULL') {
         // } else {
         //     $statement->execute(['input_value' => $values]);
         // }
         $statement->execute();
         // echo $query;
-        ($rows_only == false) ?
+        ($rows_only == FALSE) ?
             $result = $statement->fetchAll() :
             $result = $statement->rowCount();
         // print_r($result);
@@ -114,7 +114,7 @@ class MyAPI
     }
 
     /** DELETE */
-    public function Delete(string $tableName, mixed $target, mixed $values, bool $betweeen = false)
+    public function Delete(string $tableName,  $target,  $values, bool $betweeen = NULL)
     {
         $query = '';
         $statement = '';
@@ -136,8 +136,9 @@ class MyAPI
         }
     }
 
+
     /** SUM */
-    public function Sum(string $tableName, string $method, string $sum_target, $target = false, mixed $values = false)
+    public function Sum(string $tableName, string $method, string $sum_target, $target = NULL,  $values = NULL)
     {
         $query = '';
         $statement = '';
@@ -155,7 +156,7 @@ class MyAPI
                 break;
         }
         $statement = $this->db->prepare($query);
-        ($values == false) ?
+        ($values == NULL) ?
             $statement->execute() :
             $statement->execute(['input_value' => $values]);
 
@@ -165,7 +166,7 @@ class MyAPI
     }
 
     /** SEARCH */
-    public function Search(string $tableName, string $target, mixed $values, bool $rows_only = false)
+    public function Search(string $tableName, string $target,  $values, bool $rows_only = FALSE)
     {
         $query = '';
         $statement = '';
@@ -174,13 +175,13 @@ class MyAPI
         $query = "SELECT * FROM `$tableName` WHERE `$target` LIKE '%" . $values . "%'";
         $statement = $this->db->prepare($query);
         $statement->execute();
-        ($rows_only == false) ? $result = $statement->fetchAll() : $result = $statement->rowCount();
+        ($rows_only == FALSE) ? $result = $statement->fetchAll() : $result = $statement->rowCount();
 
         return $result;
     }
 
     /** BETWEEN */
-    public function Between(string $tableName, string $target, mixed $value1, mixed $value2)
+    public function Between(string $tableName, string $target,  $value1,  $value2)
     {
         $query = '';
         $statement = '';
@@ -235,7 +236,7 @@ class MyAPI
 //             $keyExists = true;
 //             break;
 //         } else {
-//             $keyExists = false;
+//             $keyExists = NULL;
 //         }
 //     }
 //     return $keyExists;

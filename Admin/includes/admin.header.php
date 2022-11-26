@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION['admins'])) {
-    header('Location: ../../../index.php');
+   header('Location: ../../../index.php');
 }
 ?>
 <!DOCTYPE html>
@@ -30,10 +30,11 @@ if (!isset($_SESSION['admins'])) {
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css">
-   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css">
+   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.2/css/buttons.dataTables.min.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css">
    <!-- Bootstrap 5 Data Tables -->
-   <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
+   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
+   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.2/css/buttons.bootstrap5.min.css">
    <!-- Bootstrap 5 icon -->
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
 
@@ -62,12 +63,12 @@ if (!isset($_SESSION['admins'])) {
    <main class="overflow-auto mx-auto d-block my-container">
 
       <?php
-        if ($path == 2) {
-            require_once '../../Admin/includes/admin.topbar.php';
-        } else if ($path == 1) {
-            require_once '../Admin/includes/admin.topbar.php';
-        }
-        ?>
+      if ($path == 2) {
+         require_once '../../Admin/includes/admin.topbar.php';
+      } else if ($path == 1) {
+         require_once '../Admin/includes/admin.topbar.php';
+      }
+      ?>
       <div class="w-100 mb-2" style="height: 43px;"></div>
 
       <!-- MAIN CONTAINER -->
