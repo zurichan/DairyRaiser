@@ -1,5 +1,6 @@
 <?php
 //hello
+// THIS IS A NEW HOME PAGE
 session_start();
 date_default_timezone_set('Asia/Manila');
 
