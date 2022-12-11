@@ -46,7 +46,7 @@ if (!isset($_SESSION['admins'])) {
 
 </head>
 
-<body id="body" class="body">
+<body id="body" onload="RealTimeClock()" class="body">
    <!-- pre loader -->
    <div class="preLoader">
       <div class="loadingio-spinner-ellipsis-zntmt5v33yr">

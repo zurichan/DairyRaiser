@@ -22,19 +22,9 @@ if (isset($_SESSION['users'])) {
    $title = 'Checkout | Dairy Raisers';
    require_once '../includes/header.php';
    require_once '../includes/navbar.php';
-} else {
-   header('../home.php');
-}
-
-?>
-
-<?php
-if (isset($_SESSION['users'])) {
    if ($user_address_rows > 0) {
-
-
+      if ($all_cart_items > 0) {
 ?>
-
 <!-- Update Modal -->
 <div class="modal fade" id="select_address" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
    aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -47,9 +37,9 @@ if (isset($_SESSION['users'])) {
          </div>
          <div class="modal-body">
             <?php
-                  $index = 1;
-                  foreach ($user_address as $address) {
-                     if ($address->isDefault == 'yes') { ?>
+                     $index = 1;
+                     foreach ($user_address as $address) {
+                        if ($address->isDefault == 'yes') { ?>
             <div class="form-check mb-3">
                <input class="form-check-input" value="<?= $address->address_id; ?>" type="radio" name="select_address"
                   id="<?= 'address' . $index; ?>" checked>
@@ -58,7 +48,7 @@ if (isset($_SESSION['users'])) {
                </label>
             </div>
             <?php
-                     } else { ?>
+                        } else { ?>
             <div class="form-check mb-3">
                <input class="form-check-input" value="<?= $address->address_id; ?>" type="radio" name="select_address"
                   id="<?= 'address' . $index; ?>">
@@ -67,10 +57,10 @@ if (isset($_SESSION['users'])) {
                </label>
             </div>
             <?php
+                        }
+                        $index++;
                      }
-                     $index++;
-                  }
-                  ?>
+                     ?>
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -113,13 +103,13 @@ if (isset($_SESSION['users'])) {
                         Address :</span>
                      <span>
                         <?php
-                              foreach ($user_address as $address) {
-                                 if ($address->isDefault == 'yes') {
-                                    echo $address->complete_address;
-                                    break;
+                                 foreach ($user_address as $address) {
+                                    if ($address->isDefault == 'yes') {
+                                       echo $address->complete_address;
+                                       break;
+                                    }
                                  }
-                              }
-                              ?>
+                                 ?>
                      </span>
                   </p>
                   <p style="font-size: inherit; white-space: nowrap;" class="w-100 text-start"><span
@@ -140,11 +130,11 @@ if (isset($_SESSION['users'])) {
                </thead>
                <tbody class="text-center">
                   <?php
-                        $index = 1;
-                        foreach ($all_cart_items as $item) {
-                           $productItem = $api->Read('products', 'set', 'product_id', $item->product_id);
+                           $index = 1;
+                           foreach ($all_cart_items as $item) {
+                              $productItem = $api->Read('products', 'set', 'product_id', $item->product_id);
 
-                        ?>
+                           ?>
                   <tr class="cart_item">
 
                      <!-- PRODUCT -->
@@ -168,8 +158,8 @@ if (isset($_SESSION['users'])) {
                      </td>
                   </tr>
                   <?php
-                           $index++;
-                        } ?>
+                              $index++;
+                           } ?>
                </tbody>
                <tfoot class="fw-bolder" style="font-size: 15px;">
                   <td colspan="3" class="text-end">
@@ -214,10 +204,25 @@ if (isset($_SESSION['users'])) {
    </section>
 </main>
 <?php
+      } else {
+      ?>
+<div class="container-fluid d-flex flex-column justify-content-center align-items-center w-100"
+   style="margin-block: 100px;">
+   <img src="../img/no-cart-item.png" class="img-fluid mb-4" style="width: 400px;" alt="page not found">
+   <h2 style="font-family: Public Sans ExBold;" class="fw-bold mb-3">No Items on your Cart </h2>
+   <a href="../shop/products.php?page=all" class="btn btn-primary">Shop Now!</a>
+</div>
+<?php
+      }
    } else {
-
-      header('Location: ../user/account/addresses.php');
-      exit();
+      ?>
+<div class="container-fluid d-flex flex-column justify-content-center align-items-center w-100"
+   style="margin-block: 100px;">
+   <img src="../img/undraw_Directions_re_kjxs.png" class="img-fluid mb-4" style="width: 400px;" alt="page not found">
+   <h2 style="font-family: Public Sans ExBold;" class="fw-bold mb-3">There is no Address set in your account </h2>
+   <a href="../user/account/addresses.php" class="btn btn-primary">Set your Address Here</a>
+</div>
+<?php
    }
 } else {
    header('Location: ../home.php');

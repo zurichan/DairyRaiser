@@ -10,7 +10,114 @@ $api = new MyAPI($main_conn);
 
 $date = date('Y-m-d h:i:s');
 
-/** Create Buffalo Invoice */ if (isset($_POST['create_bi_invoice']) && isset($_SESSION['admins']) && isset($_SESSION['create_bi'])) {
+/** Create Buffalo Milk Invoice */ if (isset($_POST['create_bi_invoice_milk']) && isset($_SESSION['admins'])) {
+    $client = filter_input(INPUT_POST, 'client_name', FILTER_SANITIZE_SPECIAL_CHARS);
+    $remarks = filter_input(INPUT_POST, 'Remarks', FILTER_SANITIZE_SPECIAL_CHARS);
+    $discount = filter_input(INPUT_POST, 'discount', FILTER_SANITIZE_NUMBER_INT);
+    $price_per_liter = filter_input(INPUT_POST, 'price_per_liter', FILTER_SANITIZE_NUMBER_INT);
+    $liter = filter_input(INPUT_POST, 'milk_liter', FILTER_SANITIZE_NUMBER_INT);
+    $other_fees = filter_input(INPUT_POST, 'other_fees', FILTER_SANITIZE_NUMBER_INT);
+
+    $subTotal = 0;
+    $discountTotal = 0;
+    $total = 0;
+
+    $err = 0;
+
+    (empty($client)) ? $err++ : FALSE;
+    (empty($liter)) ? $err++ : FALSE;
+    (empty($discount)) ? $discount = 0 : FALSE;
+    (empty($price_per_liter)) ? $err++ : FALSE;
+
+    if ($err == 0) {
+
+        function checkKeys($api, $randStr)
+        {
+            $bi_list = $api->Read('bi_list', 'all');
+            foreach ($bi_list as $bi) {
+                if ($bi->code == $randStr) {
+                    $keyExists = true;
+                    break;
+                } else {
+                    $keyExists = false;
+                }
+            }
+            return $keyExists;
+        }
+
+        function generateKeys($api)
+        {
+            $keyLength = 8;
+            $str = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            $randStr = substr(str_shuffle($str), 0, $keyLength);
+            $checkKey = checkKeys($api, $randStr);
+
+            while ($checkKey == true) {
+                $randStr = substr(str_shuffle($str), 0, $keyLength);
+                $checkKey = checkKeys($api, $randStr);
+            }
+
+            return $randStr;
+        }
+
+        $code = 'BI-' . generateKeys($api);
+        $category = 'milk';
+        $item = $price_per_liter;
+        $milk_liter = $liter;
+        $subTotal = 0;
+        $subTotal_otherFees = 0;
+        $discountTotal = 0;
+        $total = 0;
+        $grandTotal = 0;
+
+        (empty($other_fees)) ?  $other_fees = 0 : NULL;
+        (empty($price_per_liter)) ?  $price_per_liter = 0 : NULL;
+
+        $total = number_format($liter * $price_per_liter);
+        if (empty($discount)) {
+            $grandTotal = number_format($total + $other_fees);
+        } else {
+            $discountTotal = number_format(($discount / 100), 2);
+            $grandTotal = number_format((($total + $other_fees) - ($discountTotal * ($total + $other_fees))));
+        }
+
+        $subTotal = number_format($total);
+        $subTotal_otherFees = number_format($other_fees +  $total);
+
+        $api->create('bi_list', [
+            '1' => ['code', "'$code'"],
+            '2' => ['client', "'$client'"],
+            '3' => ['category', "'$category'"],
+            '4' => ['items', $item],
+            '11' => ['milk_liter', $milk_liter],
+            '5' => ['other_fees', $other_fees],
+            '6' => ['discount', $discount],
+            '7' => ['subTotal', $subTotal],
+            '8' => ['amount', $grandTotal],
+            '9' => ['remarks', "'$remarks'"],
+            '10' => ['date', "'$date'"]
+        ]);
+
+        $_SESSION['buffalo-message'] = array(
+            "title" => 'New Invoices Added',
+            "body" => 'Successfully create a new Invoice record.',
+            "type" => 'success'
+        );
+
+        header('Location: ../Manage_Buffalos/invoice_list.php?page=all&bi_code=none');
+        exit();
+    } else {
+        $_SESSION['buffalo-message'] = array(
+            "title" => 'Something went wrong',
+            "body" => '',
+            "type" => 'error'
+        );
+
+        header('Location: ../Manage_Buffalos/invoice_list.php?page=create&bi_code=milk');
+        exit();
+    }
+}
+/** Create Buffalo Invoice */ if (isset($_POST['create_bi_invoice_buffalo']) && isset($_SESSION['admins']) && isset($_SESSION['create_bi'])) {
 
     $err = 0;
     $client = filter_input(INPUT_POST, 'client_name', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -54,14 +161,19 @@ $date = date('Y-m-d h:i:s');
         return $randStr;
     }
 
-    $code = 'BI - ' . generateKeys($api);
+    $code = 'BI-' . generateKeys($api);
+
+    foreach ($_SESSION['create_bi'] as $bi) {
+        $validate_bf = '';
+        $validate_bf = $api->Read('buffalos', 'set', 'Buffalo_id', $bi['buffalo_id']);
+        (!empty($validate_bf[0]->Marked_As)) ? $err++ : NULL;
+    }
 
     if ($err == 0) {
 
         $rows = 0;
         foreach ($_SESSION['create_bi'] as $bi) {
             $api->Create('bi_session', [
-                '9' => ['is_sold', '1'],
                 '1' => ['code', "'$code'"],
                 '8' => ['client', "'$client'"],
                 '2' => ['buffalo_id', $bi['buffalo_id']],
@@ -74,7 +186,8 @@ $date = date('Y-m-d h:i:s');
             $subTotal += $bi['price'];
             $rows++;
             $api->Update('buffalos', 'Buffalo_id', [
-                '1' => ['Marked_As', "'Sold'"]
+                '1' => ['Marked_As', "'Sold'"],
+                '2' => ['BI_Reciept', "'$code'"]
             ], $bi['buffalo_id']);
         }
 
@@ -92,6 +205,7 @@ $date = date('Y-m-d h:i:s');
         $api->Create('bi_list', [
             '1' => ['code', "'$code'"],
             '2' => ['client', "'$client'"],
+            '9' => ['category', "'buffalo'"],
             '3' => ['items', $rows],
             '7' => ['other_fees', $otherFee],
             'a' => ['discount', $discount],
@@ -131,8 +245,9 @@ $date = date('Y-m-d h:i:s');
 
     if ($ptoken == 1) {
 
-        $fetch_bi = $api->Read('bi_list', 'set', 'code', $code);
-        $fetch_session = $api->Read('bi_session', 'set', 'code', $code);
+        $fetch_bi = $api->Read('bi_list', 'set', 'code', "'$code'");
+        $fetch_session = $api->Read('bi_session', 'set', 'code', "'$code'");
+        $bf_reciept = $api->Read('buffalos', 'set', 'BI_Reciept', "'$code'");
 
         $err = 0;
         $client = filter_input(INPUT_POST, 'client_name', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -149,19 +264,39 @@ $date = date('Y-m-d h:i:s');
         if ($err == 0) {
             $rows = 0;
             $subTotal = number_format($subTotal);
-            $api->Delete('bi_session', 'code', $code);
+            $api->Delete('bi_session', 'code', "$code");
+            $arr_id = array();
             foreach ($_SESSION['edit_bi'] as $bi) {
                 $api->Create('bi_session', [
                     '1' => ['code', "'$code'"],
                     '2' => ['buffalo_id', $bi['buffalo_id']],
                     '3' => ['buffalo_name', "'" . $bi['buffalo_name'] . "'"],
                     '4' => ['buffalo_gender', "'" . $bi['buffalo_gender'] . "'"],
+                    '7' => ['buffalo_weight', "'" . $bi['buffalo_weight'] . "'"],
                     '5' => ['price', $bi['price']],
-                    '6' => ['date', "'$date'"]
+                    '6' => ['date', "'$date'"],
+                    '8' => ['client', "'$client'"]
                 ]);
+                array_push($arr_id, $bi['buffalo_id']);
                 $subTotal += $bi['price'];
                 $rows++;
             }
+
+            foreach ($bf_reciept as $reciept_buffalo) {
+                $api->Update('buffalos', 'Buffalo_id', [
+                    '1' => ['Marked_As', 'NULL'],
+                    '2' => ['BI_Reciept', 'NULL']
+                ], $reciept_buffalo->Buffalo_id);
+            }
+
+            foreach ($arr_id as $id) {
+                echo $id . '<br>';
+                $api->Update('buffalos', 'Buffalo_id', [
+                    '1' => ['Marked_As', "'Sold'"],
+                    '2' => ['BI_Reciept', "'$code'"]
+                ], $id);
+            }
+
             $otherFee = number_format($otherFee);
             if (empty($discount)) {
                 $discount = 0;
@@ -209,6 +344,132 @@ $date = date('Y-m-d h:i:s');
     exit();
 }
 
+/** UPDATE MILK INVOICE */ if (isset($_POST['update_bi_invoice_milk']) && isset($_SESSION['admins'])) {
+
+    $bi_list = $api->Read('bi_list', 'all');
+    $code = $_SESSION['code'];
+    $ptoken = 0;
+
+    foreach ($bi_list as $bi) {
+        ($bi->code == $code) ? $ptoken++ : NULL;
+    }
+
+    if ($ptoken == 1) {
+
+        $client = filter_input(INPUT_POST, 'edit_client_name', FILTER_SANITIZE_SPECIAL_CHARS);
+        $remarks = filter_input(INPUT_POST, 'edit_remarks', FILTER_SANITIZE_SPECIAL_CHARS);
+        $other_fees = filter_input(INPUT_POST, 'edit_other_fees', FILTER_SANITIZE_NUMBER_INT);
+        $discount = filter_input(INPUT_POST, 'edit_discount', FILTER_SANITIZE_NUMBER_INT);
+        $price_per_liter = filter_input(INPUT_POST, 'edit_price_per_liter', FILTER_SANITIZE_NUMBER_INT);
+        $milk_liter = filter_input(INPUT_POST, 'edit_milk_liter', FILTER_SANITIZE_NUMBER_INT);
+
+        $err = 0;
+
+        (empty($client)) ? $err : NULL;
+        (empty($other_fees)) ? $err : NULL;
+        (empty($discount)) ? $err : NULL;
+        (empty($price_per_liter)) ? $err : NULL;
+        (empty($milk_liter)) ? $err : NULL;
+
+        if ($err == 0) {
+            $subTotal = 0;
+            $subTotal_otherFees = 0;
+            $discountTotal = 0;
+            $total = 0;
+            $grandTotal = 0;
+
+            (empty($other_fees)) ?  $other_fees = 0 : NULL;
+            (empty($price_per_liter)) ?  $price_per_liter = 0 : NULL;
+
+            if (!empty($milk_liter) && !empty($price_per_liter)) {
+                $total = $milk_liter * $price_per_liter;
+                if (empty($discount)) {
+                    $grandTotal = number_format($total + $other_fees);
+                } else {
+                    $discountTotal = number_format(($discount / 100), 2);
+                    $grandTotal = number_format((($total + $other_fees) - ($discountTotal * ($total + $other_fees))));
+                }
+            }
+
+            $subTotal = $total;
+            $subTotal_otherFees = number_format($other_fees +  $total);
+
+            $api->Update('bi_list', 'code', [
+                '1' => ['client', "'$client'"],
+                '2' => ['items', $price_per_liter],
+                '3' => ['milk_liter', $milk_liter],
+                '4' => ['other_fees', $other_fees],
+                '5' => ['discount', $discount],
+                '6' => ['subTotal', $subTotal],
+                '7' => ['amount', $total],
+                '8' => ['remarks', "'$remarks'"],
+                '9' => ['date', "'$date'"]
+            ], "$code");
+
+            $_SESSION['buffalo-message'] = array(
+                "title" => 'Update Invoice',
+                "body" => 'Successfully Updated an Invoice.',
+                "type" => 'success'
+            );
+        } else {
+            $_SESSION['buffalo-message'] = array(
+                "title" => 'Something went wrong!',
+                "body" => '',
+                "type" => 'error'
+            );
+        }
+    } else {
+        $_SESSION['buffalo-message'] = array(
+            "title" => 'Something went wrong!',
+            "body" => '',
+            "type" => 'error'
+        );
+    }
+    header('Location: ../Manage_Buffalos/invoice_list.php?page=all&bi_code=none');
+    exit();
+}
+
+/** SELECT CATEGORY */
+if (isset($_POST['CreateNewInvoice']) && isset($_SESSION['admins'])) {
+    $selectInvoiceCategory = filter_input(INPUT_POST, 'selectInvoiceCategory', FILTER_SANITIZE_SPECIAL_CHARS);
+    $selectInvoiceCategory = strtolower($selectInvoiceCategory);
+    $category = array('milk', 'buffalo');
+
+    $pass = 0;
+
+    (empty($selectInvoiceCategory)) ? $err++ : NULL;
+    (!in_array($selectInvoiceCategory, $category)) ? $err++ : NULL;
+
+    if ($pass == 0) {
+        if ($selectInvoiceCategory == $category[0]) {
+            header('Location: ../../Admin/Manage_Buffalos/invoice_list.php?page=create&bi_code=milk');
+            exit();
+        } else if ($selectInvoiceCategory == $category[1]) {
+            header('Location: ../../Admin/Manage_Buffalos/invoice_list.php?page=create&bi_code=buffalo');
+            exit();
+        } else {
+            $_SESSION['buffalo-message'] = array(
+                "title" => 'Something went wrong!',
+                "body" => '',
+                "type" => 'error'
+            );
+            header('Location: ../../Admin/Manage_Buffalos/invoice_list.php?page=all&bi_code=none');
+            exit();
+        }
+    } else {
+        $_SESSION['buffalo-message'] = array(
+            "title" => 'Something went wrong!',
+            "body" => '',
+            "type" => 'error'
+        );
+        header('Location: ../../Admin/Manage_Buffalos/invoice_list.php?page=all&bi_code=none');
+        exit();
+    }
+}
+
+// $_POST['create_bis'] = true;
+// $_POST['compute_bi_milk'] = true;
+
 /** CREATE INVOICE SESSIONS */ if (isset($_POST['create_bis']) && isset($_SESSION['admins'])) {
 
     /** ADD */ if (isset($_POST['create_bi'])) {
@@ -230,24 +491,21 @@ $date = date('Y-m-d h:i:s');
             $buffalo_weight = $fetch_buffalo[0]->Weight;
 
             if (!empty($fetch_buffalo)) {
-                $in_arr = 0;
-                foreach ($_SESSION['create_bi'] as $bi_query) {
-                    if (in_array($buffalo, $bi_query)) {
-                        $in_arr++;
+                foreach ($_SESSION['create_bi'] as $index => $bi) {
+                    if ($bi['buffalo_id'] == $buffalo) {
+                        unset($_SESSION['create_bi'][$index]);
                         break;
                     }
                 }
 
-                if ($in_arr == 0) {
-                    array_push($_SESSION['create_bi'],  [
-                        'buffalo_id' => $buffalo,
-                        'buffalo_name' => $buffalo_name,
-                        'buffalo_gender' => $buffalo_gender,
-                        'buffalo_weight' => $buffalo_weight,
-                        'price' => $price,
-                        'date' => $date
-                    ]);
-                }
+                array_push($_SESSION['create_bi'],  [
+                    'buffalo_id' => $buffalo,
+                    'buffalo_name' => $buffalo_name,
+                    'buffalo_gender' => $buffalo_gender,
+                    'buffalo_weight' => $buffalo_weight,
+                    'price' => $price,
+                    'date' => $date
+                ]);
 
                 $indexes = 1;
                 $subTotal = 0;
@@ -302,13 +560,47 @@ $date = date('Y-m-d h:i:s');
 
             $result = [
                 'subTotal' => $subTotal,
-                'Total' => $total
+                'Total' => $total,
+                'SESSION OF CREATE' => $_SESSION['create_bi']
             ];
 
             echo json_encode($result);
         }
+    } else if (isset($_POST['compute_bi_milk'])) {
+        $discount = filter_input(INPUT_POST, 'discount', FILTER_SANITIZE_NUMBER_INT);
+        $price_per_liter = filter_input(INPUT_POST, 'price_per_liter', FILTER_SANITIZE_NUMBER_INT);
+        $liter = filter_input(INPUT_POST, 'milk_liter', FILTER_SANITIZE_NUMBER_INT);
+        $other_fees = filter_input(INPUT_POST, 'other_fees', FILTER_SANITIZE_NUMBER_INT);
 
-        /** REMOVING ITEM */
+        $subTotal = 0;
+        $subTotal_otherFees = 0;
+        $discountTotal = 0;
+        $total = 0;
+        $grandTotal = 0;
+
+        (empty($other_fees)) ?  $other_fees = 0 : NULL;
+        (empty($price_per_liter)) ?  $price_per_liter = 0 : NULL;
+
+        if (!empty($liter) && !empty($price_per_liter)) {
+            $total = $liter * $price_per_liter;
+            if (empty($discount)) {
+                $grandTotal = number_format($total + $other_fees);
+            } else {
+                $discountTotal = number_format(($discount / 100), 2);
+                $grandTotal = number_format((($total + $other_fees) - ($discountTotal * ($total + $other_fees))));
+            }
+        }
+
+        $subTotal = $total;
+        $subTotal_otherFees = number_format($other_fees +  $total);
+
+        $result = [
+            'subTotal' => $subTotal,
+            'subTotalw_otherFees' => $subTotal_otherFees,
+            'Total' => $grandTotal
+        ];
+        echo json_encode($result);
+        /** REMOVE ITEM */
     } else if (isset($_POST['remove_bi'])) {
         $remove_item = filter_input(INPUT_POST, 'remove_item', FILTER_SANITIZE_NUMBER_INT);
         $err = 0;
@@ -362,29 +654,40 @@ $date = date('Y-m-d h:i:s');
         if ($err == 0) {
 
             $fetch_buffalo = $api->Read('buffalos', 'set', 'Buffalo_id', $buffalo);
-            $fetch_session = $api->Read('bi_session', 'set', 'code', $code);
+            // $fetch_session = $api->Read('bi_session', 'set', 'code', "'$code'");
             $buffalo_name = $fetch_buffalo[0]->Name;
             $buffalo_gender = $fetch_buffalo[0]->Gender;
             $buffalo_weight = $fetch_buffalo[0]->Weight;
 
             if (!empty($fetch_buffalo)) {
 
-                $in_arr = 0;
-                foreach ($_SESSION['edit_bi'] as $bi_query) {
-                    if (in_array($buffalo, $bi_query)) {
-                        $in_arr++;
+                foreach ($_SESSION['edit_bi'] as $index => $bi) {
+                    if ($bi['buffalo_id'] == $buffalo) {
+                        unset($_SESSION['edit_bi'][$index]);
                         break;
                     }
                 }
 
-                if ($in_arr == 0) {
-                    array_push($_SESSION['edit_bi'],  [
-                        'buffalo_id' => $buffalo,
-                        'buffalo_name' => $buffalo_name,
-                        'buffalo_gender' => $buffalo_gender,
-                        'bufalo_weight' => $buffalo_weight,
-                        'price' => $price,
-                        'date' => $date
+                array_push($_SESSION['edit_bi'],  [
+                    'buffalo_id' => $buffalo,
+                    'buffalo_name' => $buffalo_name,
+                    'buffalo_gender' => $buffalo_gender,
+                    'buffalo_weight' => $buffalo_weight,
+                    'price' => $price,
+                    'date' => $date
+                ]);
+
+                $api->Delete('bi_session', 'code', "$code");
+                foreach ($_SESSION['edit_bi'] as $bi) {
+                    $api->Create('bi_session', [
+                        '1' => ['code', "'$code'"],
+                        '2' => ['client', "'$client'"],
+                        '3' => ['buffalo_id', $bi['buffalo_id']],
+                        '4' => ['buffalo_name', "'" . $bi['buffalo_name'] . "'"],
+                        '5' => ['buffalo_gender', "'" . $bi['buffalo_gender'] . "'"],
+                        '6' => ['buffalo_weight', "'" . $bi['buffalo_gender'] . "'"],
+                        '7' => ['price', $bi['price']],
+                        '8' => ['date', $bi['date']]
                     ]);
                 }
 
@@ -433,13 +736,43 @@ $date = date('Y-m-d h:i:s');
 
             $result = [
                 'subTotal' => $subTotal,
-                'Total' => $total
+                'Total' => $total,
+                'SESSION' => $_SESSION['edit_bi']
             ];
 
             echo json_encode($result);
         }
 
-        /** REMOVING ITEM */
+        /** COMPUTATION FOR MILK BI */
+    } else if (isset($_POST['compute_bi_milk'])) {
+        $discount = filter_input(INPUT_POST, 'discount', FILTER_SANITIZE_NUMBER_INT);
+        $price_per_liter = filter_input(INPUT_POST, 'price_per_liter', FILTER_SANITIZE_NUMBER_INT);
+
+        $subTotal = 0;
+        $discountTotal = 0;
+        $total = 0;
+        $result = [];
+
+        $err = 0;
+
+        if ($err == 0) {
+            (empty($price_per_liter)) ? $price_per_liter = 0 : NULL;
+            if (empty($discount)) {
+                $total = $price_per_liter;
+            } else {
+                $discountTotal = number_format(($discount / 100), 2);
+                $total = number_format((($subTotal + $price_per_liter) - ($discountTotal * ($subTotal + $price_per_liter))));
+            }
+            $subTotal = $price_per_liter;
+
+            $result = [
+                'subTotal' => $subTotal,
+                'Total' => $total
+            ];
+
+            echo json_encode($result);
+        }
+        /** REMOVE ITEM */
     } else if (isset($_POST['remove_bi'])) {
         $remove_item = filter_input(INPUT_POST, 'remove_item', FILTER_SANITIZE_NUMBER_INT);
         $err = 0;
@@ -463,7 +796,8 @@ $date = date('Y-m-d h:i:s');
                     echo "<td>$indexes</td>";
                     echo '<td> <span class="fullName_bi">' . $bi["buffalo_name"] . '</span> [<span class="id_bi">' . $bi["buffalo_id"] . '</span>]</td>';
                     echo '<td class="">' . $bi["buffalo_gender"] . '</td>';
-                    echo '<td>' . $bi["price"] . '</td>';
+                    echo '<td class="">' . $bi["buffalo_weight"] . ' kg</td>';
+                    echo '<td>₱' . $bi["price"] . '.00</td>';
                     echo "<td><button class='remove_btn btn btn-sm btn-outline-danger'><i class='bi bi-x'></i></button></td>";
                     echo '</tr>';
                     $indexes++;
@@ -477,53 +811,25 @@ $date = date('Y-m-d h:i:s');
 /** REMOVE INVOICE */ if (isset($_POST['remove_invoice']) && isset($_SESSION['admins'])) {
 
     $err = 0;
-    $bi_code = $_POST['remove_invoice'];
+    $bi_code = filter_input(INPUT_POST, 'remove_invoice', FILTER_SANITIZE_SPECIAL_CHARS);
+    $bf_reciept = $api->Read('buffalos', 'set', 'BI_Reciept', "'$bi_code'");
 
     (empty($bi_code)) ? $err++ : NULL;
 
-    $fetch_bi = $api->Read('bi_list', 'set', 'code', $bi_code);
-    $fetch_session = $api->Read('bi_session', 'set', 'code', $bi_code);
+    $fetch_bi = $api->Read('bi_list', 'set', 'code', "'$bi_code'");
+    $fetch_session = $api->Read('bi_session', 'set', 'code', "'$bi_code'");
 
     (empty($fetch_bi)) ? $err++ : NULL;
 
     if ($err == 0) {
-
+        foreach ($bf_reciept as $reciept) {
+            $api->Update('buffalos', 'Buffalo_id', [
+                '1' => ['Marked_As', 'NULL'],
+                '2' => ['BI_Reciept', 'NULL']
+            ], $reciept->Buffalo_id);
+        }
         $api->Delete('bi_list', 'code', $bi_code);
         $api->Delete('bi_session', 'code', $bi_code);
-
-        $bi_list = $api->Read('bi_list', 'all');
-        $indexes = 1;
-
-        foreach ($bi_list as $bi) {
-            $pcs = '';
-            ($bi->items > 1) ? $pcs = 'pcs' : $pcs = 'pc';
-            if ($bi->marked_as == NULL) {
-?>
-                <tr>
-                    <td><?= $indexes; ?></td>
-                    <td><?= $bi->date; ?></td>
-                    <td data-target="bi_code"><?= $bi->code; ?></td>
-                    <td><?= $bi->client; ?></td>
-                    <td><?= $bi->remarks; ?></td>
-                    <td><?= $bi->items . ' ' . $pcs; ?></td>
-                    <td>₱<?= $bi->subTotal; ?>.00</td>
-                    <td>₱<?= $bi->other_fees; ?>.00</td>
-                    <td><?= $bi->discount; ?>%</td>
-                    <td>₱<?= $bi->amount; ?>.00</td>
-                    <td>
-                        <a class=" dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Action</a>
-                        <ul class="dropdown-menu dropdown-sm">
-                            <li><a href="./invoice_list.php?page=view&bi_code=<?= $bi->code; ?>" class="dropdown-item">View</a></li>
-                            <li><a href="./invoice_list.php?page=edit&bi_code=<?= $bi->code; ?>" class="dropdown-item">Edit</a></li>
-                            <li><button type="button" class="dropdown-item" data-btn="retrieve">Retrieve</button></li>
-                            <li><button type="button" class="dropdown-item" data-btn="remove">Remove</button></li>
-                        </ul>
-                    </td>
-                </tr>
-            <?php
-                $indexes++;
-            }
-        }
     }
 }
 
@@ -535,7 +841,7 @@ $date = date('Y-m-d h:i:s');
     (empty($bi_code)) ? $err++ : NULL;
 
     if ($err == 0) {
-        $fetch_session = $api->Read('bi_session', 'set', 'code', $bi_code);
+        $fetch_session = $api->Read('bi_session', 'set', 'code', "'$bi_code'");
 
         $api->Update('bi_list', 'code', [
             '1' => ['marked_as', "'retrieved'"]
@@ -545,45 +851,13 @@ $date = date('Y-m-d h:i:s');
             $api->Update('buffalos', 'Buffalo_id', [
                 '1' => ['Marked_As', 'NULL']
             ], $bi->buffalo_id);
-            
-            $api->Update('bi_session', 'code',[
+
+            $api->Update('bi_session', 'code', [
                 '1' => ['is_sold', 0]
-            ], $bi_code);
+            ], "'$bi_code'");
         }
 
         $bi_list = $api->Read('bi_list', 'all');
         $indexes = 1;
-
-        foreach ($bi_list as $bi) {
-            $pcs = '';
-            ($bi->items > 1) ? $pcs = 'pcs' : $pcs = 'pc';
-
-            if ($bi->marked_as == NULL) {
-            ?>
-                <tr>
-                    <td><?= $indexes; ?></td>
-                    <td><?= $bi->date; ?></td>
-                    <td data-target="bi_code"><?= $bi->code; ?></td>
-                    <td><?= $bi->client; ?></td>
-                    <td><?= $bi->remarks; ?></td>
-                    <td><?= $bi->items . ' ' . $pcs; ?></td>
-                    <td>₱<?= $bi->subTotal; ?>.00</td>
-                    <td>₱<?= $bi->other_fees; ?>.00</td>
-                    <td><?= $bi->discount; ?>%</td>
-                    <td>₱<?= $bi->amount; ?>.00</td>
-                    <td>
-                        <a class=" dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Action</a>
-                        <ul class="dropdown-menu dropdown-sm">
-                            <li><a href="./invoice_list.php?page=view&bi_code=<?= $bi->code; ?>" class="dropdown-item">View</a></li>
-                            <li><a href="./invoice_list.php?page=edit&bi_code=<?= $bi->code; ?>" class="dropdown-item">Edit</a></li>
-                            <li><button type="button" class="dropdown-item" data-btn="retrieve">Retrieve</button></li>
-                            <li><button type="button" class="dropdown-item" data-btn="remove">Remove</button></li>
-                        </ul>
-                    </td>
-                </tr>
-<?php
-                $indexes++;
-            }
-        }
     }
 }

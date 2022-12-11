@@ -1,6 +1,5 @@
 <?php
-//hello
-// THIS IS A NEW HOME PAGE
+
 session_start();
 date_default_timezone_set('Asia/Manila');
 
@@ -22,6 +21,15 @@ if (isset($_SESSION['users'])) {
    $user_name = $user_info[0]->firstname;
 
    $item_rows = $cart_items_row;
+
+   $item_rows = $cart_items_row;
+   $user_order_details = $api->Read('order_details', 'set', 'user_id', $user_info[0]->user_id);
+   $user_order_track = $api->Read('order_track', 'set', 'user_id', $user_info[0]->user_id);
+   $user_order_item = $api->Read('order_items', 'set', 'user_id', $user_info[0]->user_id);
+
+   $order_details_row = $api->Read('order_details', 'set', 'user_id', $user_info[0]->user_id, TRUE);
+   $order_track_row = $api->Read('order_track', 'set', 'user_id', $user_info[0]->user_id, TRUE);
+   $order_item_row = $api->Read('order_items', 'set', 'user_id', $user_info[0]->user_id, TRUE);
 } else {
    $user_name = '';
    $item_rows = '';
@@ -62,7 +70,8 @@ require_once './includes/navbar.php';
                               <a href="../../../shop/products.php?page=all" style="font-family: Public Sans ExBold;"
                                  class="btn  btn-primary me-2 px-4"><i class="me-2 bi bi-bag-check-fill"></i> Shop Now
                                  !</a>
-                              <a href="#" class="btn  btn-outline-primary"><i class="me-2 bi bi-facebook"></i> Follow Us
+                              <a href="https://facebook.com/gentridairy" class="btn  btn-outline-primary"><i
+                                    class="me-2 bi bi-facebook"></i> Follow Us
                                  On Facebook</a>
                            </div>
                         </div>
@@ -75,20 +84,73 @@ require_once './includes/navbar.php';
                            style="width: 220px;top: 40%;right: 35%;z-index: 2;position: absolute;">
                         <img src="./img/pouring-milk.png" class="img-fluid" alt="pouring milk" style="width: 100%; ">
                      </div>
-
                   </div>
                </div>
             </li>
             <li class="glide__slide ">
-               <div class="d-flex flex-column justify-content-center align-items-center">
-                  <!-- <h1>Milk taste so good</h1>
-                  <h5>It does a body good!</h5> -->
+               <div class="d-flex justify-content-between align-items-center" style="width: 100%; height: 100%;">
+                  <div class="d-flex justify-content-center align-items-center w-100 h-100 ">
+                     <div class="w-100 h-100 d-flex justify-content-center align-items-center"
+                        style="position: relative;">
+                        <img src="./img/backg.png" class="img-fluid" alt="products"
+                           style="width: 550px; top: 25%; right: -1%; z-index: 2; position: absolute;">
+                        <img src="./img/pouring-milk.png" class="img-fluid" alt="pouring milk"
+                           style="width: 100%; height:70%;">
+                     </div>
+                  </div>
+
+                  <div class="px-5 d-flex flex-column justify-content-center align-items-center gap-2">
+                     <div class="mx-0 d-flex justify-content-between align-items-center ">
+
+                        <div class="text-center" style="font-family: Aquino;">
+                           <h1 style="font-size: 40px">Why Dairy Raisers?</h1>
+                        </div>
+                     </div>
+                     <div class="mx-0 card py-2 text-center" style="background:inherit;  border: none;">
+                        <div style="z-index: 5;"
+                           class="card-body text-center d-flex flex-column justify-content-center align-items-center px-3 w-100 h-100">
+                           <p style="font-family: Public Sans Light;font-size:20px;margin: 0;text-align: justify;"
+                              class="card-text">The General Trias Dairy Raisers Multi-Purpose Cooperative promotes
+                              dairying and dairy enterprise that imporves quality life of carabao raisers, from 7-21
+                              dairy products and flavor variants.</p>
+                           <div class="mt-4">
+                              <a href="../../../shop/products.php?page=all" style="font-family: Public Sans ExBold;"
+                                 class="btn  btn-primary me-2 px-4"> See More</a>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
                </div>
             </li>
             <li class="glide__slide">
-               <div class="d-flex flex-column justify-content-center align-items-center">
-                  <!-- <h1>Have You Had Your Dairy Today?</h1>
-                  <h5>Buffalo Milk is a Nutritional Purchase</h5> -->
+               <div class="d-flex justify-content-between align-items-center" style="width: 100%; height: 100%;">
+                  <div class="px-5 d-flex flex-column justify-content-center align-items-center gap-2">
+                     <div class="mx-0 d-flex justify-content-between align-items-center ">
+
+                        <div class="text-center" style="font-family: Aquino;">
+                           <h1 style="font-size: 35px">Carabao Milk Boosts </h1>
+                           <h1 style="font-size: 35px">our Immune System?</h1>
+                        </div>
+                     </div>
+                     <div class="mx-0 card py-2 text-center" style="background:inherit;  border: none;">
+                        <div style="z-index: 5;"
+                           class="card-body text-center d-flex flex-column justify-content-center align-items-center px-3 w-100 h-100">
+
+                           <p style="font-family: Public Sans Light;font-size:20px;margin: 0;text-align: center;"
+                              class="card-text">Carabao milk contains significant amount of vitamin C and A, necessary
+                              to strengthen our immune system.</p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="d-flex justify-content-center align-items-center w-100 h-100 ">
+                     <div class="w-100 h-100 d-flex justify-content-center align-items-center"
+                        style="position: relative;">
+                        <img src="./img/glass.png" class="img-fluid" alt="energizer"
+                           style="width: 500px;top: 20%;right: 10%;z-index: 2;position: absolute;">
+                        <img src="./img/pouring-milk.png" class="img-fluid" alt="pouring milk" style="width: 90%; ">
+                     </div>
+                  </div>
                </div>
             </li>
          </ul>

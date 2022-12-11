@@ -62,91 +62,91 @@ if (isset($_GET['google_signup'])) {
     }
 }
 
-if (isset($_POST['signup'])) {
-    $err = 0;
-    $message = '';
-    $result = [];
+// if (isset($_POST['signup'])) {
+//     $err = 0;
+//     $message = '';
+//     $result = [];
 
-    if (isset($_POST['name'])) {
-        $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_SPECIAL_CHARS);
-        if (!empty($name)) {
-            if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-                $err++;
-                $message = 'Only white space and letters are allowed.';
-            }
-        } else {
-            $err++;
-            $message = 'Name should not be empty.';
-        }
-    }
+//     if (isset($_POST['name'])) {
+//         $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_SPECIAL_CHARS);
+//         if (!empty($name)) {
+//             if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
+//                 $err++;
+//                 $message = 'Only white space and letters are allowed.';
+//             }
+//         } else {
+//             $err++;
+//             $message = 'Name should not be empty.';
+//         }
+//     }
 
-    if (isset($_POST['email'])) {
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        if (!empty($email)) {
-            $all_email = $api->Read('user', 'all');
-            foreach ($all_email as $user_email) {
-                if ($user_email->email == $email) {
-                    $err++;
-                    $message = 'Email Address is already exist.';
-                    break;
-                }
-            }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $err++;
-                $message = 'Invalid Email format.';
-            }
-        } else {
-            $err++;
-            $message = 'Email Address is empty.';
-        }
-    }
-    if (isset($_POST['phone_number'])) {
-        $phone_number = filter_input(INPUT_POST, 'phone_number', FILTER_SANITIZE_NUMBER_INT);
-        if (!empty($phone_number) || $phone_number != '') {
-            $phoneNumberConvertString = strval($phone_number);
-            $phoneNumberLength = strlen($phoneNumberConvertString);
-            if ($phoneNumberLength != 10 || $phoneNumberLength < 0 || $phone_number = 0 || $phoneNumberConvertString[0] != '9') {
-                $err++;
-                $message = 'Invalid Phone Number Format.';
-            }
-        } else {
-            $err++;
-            $message = 'Phone Number is empty or is not a number.';
-        }
-    }
+//     if (isset($_POST['email'])) {
+//         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+//         if (!empty($email)) {
+//             $all_email = $api->Read('user', 'all');
+//             foreach ($all_email as $user_email) {
+//                 if ($user_email->email == $email) {
+//                     $err++;
+//                     $message = 'Email Address is already exist.';
+//                     break;
+//                 }
+//             }
+//             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+//                 $err++;
+//                 $message = 'Invalid Email format.';
+//             }
+//         } else {
+//             $err++;
+//             $message = 'Email Address is empty.';
+//         }
+//     }
+//     if (isset($_POST['phone_number'])) {
+//         $phone_number = filter_input(INPUT_POST, 'phone_number', FILTER_SANITIZE_NUMBER_INT);
+//         if (!empty($phone_number) || $phone_number != '') {
+//             $phoneNumberConvertString = strval($phone_number);
+//             $phoneNumberLength = strlen($phoneNumberConvertString);
+//             if ($phoneNumberLength != 10 || $phoneNumberLength < 0 || $phone_number = 0 || $phoneNumberConvertString[0] != '9') {
+//                 $err++;
+//                 $message = 'Invalid Phone Number Format.';
+//             }
+//         } else {
+//             $err++;
+//             $message = 'Phone Number is empty or is not a number.';
+//         }
+//     }
 
-    if (isset($_POST['password'])) {
-        $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
-        if (!empty($password)) {
-            if (isset($_POST['rpassword'])) {
-                $rpassword = filter_input(INPUT_POST, 'rpassword', FILTER_SANITIZE_SPECIAL_CHARS);
-                if ($rpassword != $password) {
-                    $err++;
-                    $message = "Those passwords did not match.";
-                }
-            } else {
-                $len = strval($password);
-                $pass_len = strlen($len);
+//     if (isset($_POST['password'])) {
+//         $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
+//         if (!empty($password)) {
+//             if (isset($_POST['rpassword'])) {
+//                 $rpassword = filter_input(INPUT_POST, 'rpassword', FILTER_SANITIZE_SPECIAL_CHARS);
+//                 if ($rpassword != $password) {
+//                     $err++;
+//                     $message = "Those passwords did not match.";
+//                 }
+//             } else {
+//                 $len = strval($password);
+//                 $pass_len = strlen($len);
 
-                if ($pass_len < 5 || !preg_match("/^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/", $password)) {
-                    $err++;
-                    $message = 'Password must contain (5+) length, and atleast (1) uppercase and digit.';
-                }
-            }
-        } else {
-            $err++;
-            $message = 'Password should not be empty.';
-        }
-    }
+//                 if ($pass_len < 5 || !preg_match("/^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/", $password)) {
+//                     $err++;
+//                     $message = 'Password must contain (5+) length, and atleast (1) uppercase and digit.';
+//                 }
+//             }
+//         } else {
+//             $err++;
+//             $message = 'Password should not be empty.';
+//         }
+//     }
 
-    ($err == 0) ? $message = 'nothing' : NULL;
-    $result = [
-        'error' => $err,
-        'message' => $message,
-    ];
+//     ($err == 0) ? $message = 'nothing' : NULL;
+//     $result = [
+//         'error' => $err,
+//         'message' => $message,
+//     ];
 
-    echo json_encode($result);
-}
+//     echo json_encode($result);
+// }
 
 if (isset($_POST['signup-submit'])) {
     $err = 0;
@@ -193,7 +193,7 @@ if (isset($_POST['signup-submit'])) {
 
     $phoneNumberConvertString = strval($phone_number);
     $phoneNumberLength = strlen($phoneNumberConvertString);
-    ($phoneNumberLength != 10 || $phoneNumberLength < 0 || $phone_number = 0 || $phoneNumberConvertString[0] != '9') ? $err++ : NULL;
+    ($phoneNumberLength != 10 || $phoneNumberLength < 0 || $phone_number == 0 || $phoneNumberConvertString[0] != '9') ? $err++ : NULL;
 
     $password_str = strval($password);
     $password_len = strlen($password_str);
@@ -227,7 +227,6 @@ if (isset($_POST['signup-submit'])) {
             $api->Create('shopping_session', [
                 'key1' => ['user_id', $get_user_info[0]->user_id]
             ]);
-
 
             $_SESSION['users'] = array($get_user_info[0]);
             $_SESSION['TIME'] = time();
@@ -263,14 +262,17 @@ if (isset($_POST['signup-submit'])) {
             // https://www.dairyraisers.com/
 
             $mail->Body = "
-                    <div>
-            <h5 style='font-size: 25px;'>Greetings <span style='font-weight: bolder;'>$givenname !</span> You Have Registered at Dairy Raisers</h5>
-                <p style='font-size: 17px;'>Verify your Email Address to Login with the given Token below:</p>
-                <a style='text-decoration: none; color: blue; font-weight: bolder; border: 2px solid navy; padding: 10px;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
-                <p>Your Verification Token will expire within 10 minutes.</p>        
-                ";
+<div style='display: flex;'>
+   <h4 style='text-align: center; margin-right: 10px;'>Dairy Raisers</h4>
+   <img src='cid:companylogo' style='width: 100px;'>
+</div>
+<p>Hi <span style='font-weight: bolder;'>$fname !</span> You are now registered at Dairy Raisers. Please verify this Email Address by clicking the link below:</p>
+<a style='font-weight: bolder;' href='http://localhost:3000/entry/email_verification.php?verification_key=$verification_code&user_email=$email'>Verify Email</a>
+<p>This Verification Token will expire within 10 minutes. Please DO NOT share this link to anyone.</p>
+";
+            $mail->addEmbeddedImage(dirname(__DIR__) . '/OfficialDairyRaisers/img/company-logo.png', 'companylogo', 'company-logo.png');
+
             if ($mail->send()) {
-                echo $email;
                 // INPUT USER, USER ADDRESS, AND ADD A SHOPPING SESSION DATA IN DATABASE
                 $api->Create('user', [
                     'key1' => ['firstname', "'$givenname'"],
@@ -285,7 +287,7 @@ if (isset($_POST['signup-submit'])) {
                     'key11' => ['Modified_at', "'$date'"],
                     'key9' => ['date_stamp', "'$OTPDate'"]
                 ]);
-                $get_user_info = $api->Read('user', 'set', 'email', "$email");
+                $get_user_info = $api->Read('user', 'set', 'email', "'$email'");
                 $api->Create('shopping_session', [
                     'key1' => ['user_id', $get_user_info[0]->user_id]
                 ]);
@@ -313,6 +315,7 @@ if (isset($_POST['signup-submit'])) {
                     "body" =>  $mail->ErrorInfo,
                     "type" => 'error'
                 );
+                exit();
             }
             header('Location: ../entry/signup.php');
             exit();
@@ -323,8 +326,8 @@ if (isset($_POST['signup-submit'])) {
             "body" =>  '',
             "type" => 'error'
         );
-        header('Location: ../entry/signup.php');
-        exit();
+        // header('Location: ../entry/signup.php');
+        // exit();
     }
 }
 
@@ -475,7 +478,7 @@ if (isset($_POST['submit'])) {
             'key10' => ['RegistrationDate', "'$date'"],
             'key11' => ['Modified_at', "'$date'"]
         ]);
-        $get_user_info = $api->Read('user', 'set', 'email', "$email");
+        $get_user_info = $api->Read('user', 'set', 'email', "'$email'");
         $api->Create('shopping_session', [
             'key1' => ['user_id', $get_user_info[0]->user_id]
         ]);

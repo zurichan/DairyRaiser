@@ -26,8 +26,7 @@
             </button>
             <ul class="dropdown-menu">
                <!-- Dropdown menu links -->
-               <li><a href="../../../../../configs/logout.php" class="dropdown-item"><i
-                        class="bi bi-gear me-1"></i>Settings</a></li>
+               <li><a href="#" class="dropdown-item"><i class="bi bi-gear me-1"></i>Settings</a></li>
                <li>
                   <hr class="dropdown-divider">
                </li>

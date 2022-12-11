@@ -1,0 +1,150 @@
+/* .btn {
+  display: inline-block;
+  margin-top: 1rem;
+  border-radius: 5rem;
+  padding: 1rem 3rem;
+  cursor: pointer;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background-image: linear-gradient(-45deg, #62bfed 0, #3590f3 100%);
+  color: #fff;
+  animation: animate 3s infinite;
+  box-shadow: .7rem .7rem .5rem rgba(0, 0, 0, 0.4);
+  border-top: .1rem solid rgba(0, 0, 0, 0.1);
+} */
+  
+.carousel-item {
+  width: 90%;
+  height: 85vh!important;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding-left: 10rem;
+  top: 3rem;
+}
+  
+.carousel-item::before {
+  content: '';
+  background-color: rgba(12, 11, 10, 0.5);
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 10rem;
+  bottom: 0;
+}
+
+.carousel-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  top: 1%;
+  left: 10rem;
+  right: 0;
+}
+
+.carousel-caption p {
+  font-size: 1.5rem;
+  width: 60%;
+  -webkit-animation-delay: 0.4s;
+  animation-delay: 0.4s;
+  margin: 0px auto 30px auto;
+  text-align:center;
+}
+
+.carousel-captions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  top: 55%;
+  left: 19rem;
+  right: 0;
+}
+
+.carousel-caption .headings {
+  text-align: center;
+  font-size: 2rem;
+  color: #c6dbf0;
+  padding: 0;
+  padding-bottom: 2rem;
+  margin: 1rem 0;
+  text-transform: uppercase;
+  font-family: fantasy;
+  text-shadow: 1rem 1rem .1rem rgb(0, 86, 107);
+  font-size: 4rem;
+  letter-spacing: .1rem;
+}
+
+.carousel-control-prev {
+  left: 5rem;
+}
+
+.carousel-control-next {
+  right: 4rem;
+}
+
+@media (max-width:991px){
+  html {
+      font-size: 55%;
+  }
+
+  header {
+      padding: 2rem;
+  }
+
+  section {
+      padding: 2rem;
+  }
+
+  .home {
+      background-position: center;
+  }
+}
+
+@media (max-width:768px){
+  header {
+    padding: 0;
+    padding-left: 1rem;
+    padding-right: 1.5rem;
+  }
+
+  .carousel-item {
+    width: 95%;
+    height: 50vh!important;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding-left: 4rem;
+    top: 3rem;
+  }
+    
+  .carousel-item::before {
+    left: 4rem;
+  }
+  
+  .carousel-caption {
+    left: 2rem;
+  }
+  
+  .carousel-caption p {
+    font-size: 1.5rem;
+    width: 75%;
+  }
+  
+  .carousel-captions {
+    left: 10rem;
+  }
+
+  .carousel-control-prev {
+    left: 1rem;
+  }
+  
+  .carousel-control-next {
+    right: 0;
+  }
+
+}

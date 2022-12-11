@@ -10,19 +10,33 @@
                class="me-2 bi bi-house-fill"></i> Home</a>
          <a href="../../../shop/products.php?page=all" style="font-size: 14px;" class="nav-link text-dark me-2"><i
                class="me-2 bi bi-bag-check-fill"></i> Shop</a>
-         <a href="#" style="font-size: 14px;" class="nav-link text-dark me-2"><i
+         <a href="../../../Contact.php" style="font-size: 14px;" class="nav-link text-dark me-2"><i
                class="me-2 bi bi-telephone-inbound-fill"></i> Contact</a>
-         <a href="#" style="font-size: 14px;" class="nav-link text-dark me-2"><i
+         <a href="../../../FAQ.php" style="font-size: 14px;" class="nav-link text-dark me-2"><i
                class="me-2 bi bi-patch-question-fill"></i> FAQ</a>
       </div>
       <!-- USER LOGIN -->
       <?php if (isset($_SESSION['users'])) {
-        ?>
+      ?>
       <ul class="navbar-nav">
          <p style="font-family: Public Sans Light;font-size: 13.5px; " class="text-center my-auto d-block me-3">Welcome,
             <span style="font-family: Public Sans ExBold; letter-spacing: 1px;"
                class="text-decoration-underline"><?= $user_name; ?></span> !
          </p>
+         <!-- ORDER TRACKER -->
+         <a href="../track_order.php" class="btn btn-sm btn-outline-danger"><i
+               class="fa-solid fa-location-crosshairs text-center me-2"></i> Order
+            Tracker</a>
+         <!-- CART -->
+         <li class="nav-item fs-5 mx-2 lead d-flex justify-content-center align-items-center">
+            <a href="../../../shop/cart.php"
+               class="btn btn-outline-primary d-flex justify-content-center align-items-center">
+               <i class="fa-solid fa-cart-shopping" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                  title="View Cart Items and Checkout."></i>
+               <span style="font-family: Public Sans ExBold;" class="ms-2"><?= $item_rows; ?></span>
+            </a>
+         </li>
+         <!-- SETTINGS -->
          <li class="nav-item">
             <div class="dropdown">
                <button type="button" class="btn btn-outline-dark" data-bs-toggle="dropdown"><i data-bs-toggle="tooltip"
@@ -38,14 +52,6 @@
                            class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
                </ul>
             </div>
-         </li>
-         <li class="nav-item fs-5 mx-2 lead d-flex justify-content-center align-items-center">
-            <a href="../../../shop/cart.php"
-               class="btn btn-outline-primary d-flex justify-content-center align-items-center">
-               <i class="fa-solid fa-cart-shopping" data-bs-toggle="tooltip" data-bs-placement="bottom"
-                  title="View Cart Items and Checkout."></i>
-               <span style="font-family: Public Sans ExBold;" class="ms-2"><?= $item_rows; ?></span>
-            </a>
          </li>
       </ul>
       <!-- BY DEFAULT -->
@@ -69,9 +75,9 @@
 
 <?php
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-    $url = "https://";
+   $url = "https://";
 else
-    $url = "http://";
+   $url = "http://";
 // Append the host(domain name, ip) to the URL.   
 $url .= $_SERVER['HTTP_HOST'];
 

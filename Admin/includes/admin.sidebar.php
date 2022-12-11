@@ -69,6 +69,26 @@
                      Materials</a>
                </div>
             </div>
+
+            <!-- ORDERS -->
+            <li class="nav-item d-flex py-auto justify-content-center align-items-center py-0 px-2">
+               <button type="button" data-bs-toggle="collapse" data-bs-target="#OrderNavBar"
+                  class="nav-link border-0 d-flex justify-content-between align-items-center w-100"
+                  style="font-size: 13px; background-color: #343a40;">
+                  <div class="d-flex justify-content-start align-items-center">
+                     <i class="fa-solid fa-cart-arrow-down me-2" style="font-size: 16px;"></i>
+                     <!-- <img src="../../img/inventory.svg" style="width: 16px;" alt="inventory" class="img-fluid me-2"> -->
+                     Order
+                  </div>
+                  <i class="bi bi-caret-down-fill"></i>
+               </button>
+            </li>
+            <div class="collapse" id="OrderNavBar">
+               <div style="font-size: 13px;"
+                  class="bg-dark d-flex flex-column justify-content-center aligm-items-center text-end py-1 pe-4 w-100">
+                  <a class="nav-link text-decoration-none" href="../../../Admin/Orders/order_list.php">Order List</a>
+               </div>
+            </div>
          </ul>
       </div>
 

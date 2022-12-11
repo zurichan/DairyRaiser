@@ -57,7 +57,7 @@ require_once '../includes/navbar.php';
 <main style="margin-top: 55px;" class="bg-light container-fluid p-4">
    <div class=" mb-1 d-flex flex-column justify-content-center align-items-center gap-1">
       <h1 style="font-family: Aquino;font-size: 50px;" class="text-primary text-center">Shop at Dairy Raisers</h1>
-      <h5 style="font-family: Aquino; letter-spacing: 6px;" class="text-center first-letter-head">This is Sob Title.
+      <h5 style="font-family: Aquino; letter-spacing: 6px;" class="text-center first-letter-head">Food Distributor
       </h5>
       <a href="#" class="lead text-center nav-link p-0 my-3" style="font-size: 16px;">Terms of Services</a>
    </div>
@@ -121,7 +121,6 @@ require_once '../includes/navbar.php';
          <?php
             foreach ($all_products as $product) :
                $product_stock = $api->Read('product_stocks', 'set', 'product_id', $product->product_id);
-
                if ($product_stock[0]->finished_goods > 0) {
             ?>
          <div class="col-6 col-md-4 col-lg-2 mb-3">

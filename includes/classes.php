@@ -76,6 +76,7 @@ class MyAPI
                 return 'Wrong Target';
                 break;
         }
+
         $statement = $this->db->prepare($query);
         // if ($values == 'NULL') {
         // } else {
